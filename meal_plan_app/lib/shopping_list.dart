@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+List<String> shoppingList = [];
+
 class ShoppingList extends StatefulWidget {
   const ShoppingList({super.key});
 
@@ -8,7 +10,6 @@ class ShoppingList extends StatefulWidget {
 }
 
 class _ShoppingListState extends State<ShoppingList> {
-  List<String> shoppingList = [];
   @override
   Widget build(BuildContext context) {
     return Scaffold(

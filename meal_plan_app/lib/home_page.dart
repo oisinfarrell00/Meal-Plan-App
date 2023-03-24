@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meal_plan_app/shopping_list.dart';
+import 'package:meal_plan_app/weekly_plan.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,10 +15,7 @@ class _HomePageState extends State<HomePage> {
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const List<Widget> _widgetOptions = <Widget>[
     ShoppingList(),
-    Text(
-      'Index 1: Business',
-      style: optionStyle,
-    ),
+    WeeklyMealPlan(),
     Text(
       'Index 2: School',
       style: optionStyle,
