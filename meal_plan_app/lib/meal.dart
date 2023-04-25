@@ -30,6 +30,17 @@ class Meal {
     }
   }
 
+  Future<void> removeMealToDatabase(Meal meal) async {
+    try {
+      final docUser =
+          FirebaseFirestore.instance.collection("Meals").doc(meal.name);
+      debugPrint(docUser.toString());
+      await docUser.delete();
+    } catch (e) {
+      debugPrint("Error removing meal to database: $e");
+    }
+  }
+
   Future<void> addMealsToDatabase(List<Meal> meals) async {
     try {
       final batch = FirebaseFirestore.instance.batch();

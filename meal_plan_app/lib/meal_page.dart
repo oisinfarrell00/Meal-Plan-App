@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:meal_plan_app/meal.dart';
+import 'add_meal_dialog_widget.dart';
 import 'assets/constants.dart' as constants;
 
 class MealPage extends StatefulWidget {
@@ -11,6 +12,7 @@ class MealPage extends StatefulWidget {
 }
 
 class _MealPageState extends State<MealPage> {
+  Widget addMealDialog = const TextSubmitForm();
   final addFoodNameController = TextEditingController();
   final addFoodIngredientController = TextEditingController();
   var ingredients = <String>[];
@@ -33,80 +35,7 @@ class _MealPageState extends State<MealPage> {
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          return Dialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0)),
-            child: SizedBox(
-              height: 300,
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        IconButton(
-                            onPressed: () {
-                              cleanUpDialog();
-                            },
-                            icon: const Icon(Icons.arrow_back)),
-                        const Text("Add Meal"),
-                      ],
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                      child: TextField(
-                        controller: addFoodNameController,
-                        decoration: const InputDecoration(
-                            border: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(width: 3, color: Colors.black),
-                            ),
-                            hintText: 'Name'),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: TextField(
-                        controller: addFoodIngredientController,
-                        decoration: InputDecoration(
-                            suffixIcon: IconButton(
-                                icon: const Icon(Icons.add),
-                                onPressed: () {
-                                  ingredients
-                                      .add(addFoodIngredientController.text);
-                                  addFoodIngredientController.clear();
-                                }),
-                            border: const OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(width: 3, color: Colors.black),
-                            ),
-                            hintText: 'Ingredient'),
-                      ),
-                    ),
-                    SizedBox(
-                      width: constants.CONTENT_WIDTH,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                        ),
-                        onPressed: () {
-                          var meal = Meal(
-                              name: addFoodNameController.text,
-                              ingredients: ingredients);
-                          meal.addMealToDatabase(meal);
-                          cleanUpDialog();
-                        },
-                        child: const Text(
-                          "Save",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          );
+          return addMealDialog;
         });
   }
 
@@ -154,12 +83,30 @@ class _MealPageState extends State<MealPage> {
                         return ListTile(
                           leading: const Icon(Icons.list),
                           title: Text("${mealList[index]['name']}"),
-                          trailing: IconButton(
-                            icon: const Icon(
-                              Icons.edit,
-                              color: Colors.greenAccent,
-                            ),
-                            onPressed: () {},
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.remove_circle_outline,
+                                  color: Colors.redAccent,
+                                ),
+                                onPressed: () {
+                                  Meal mealToRemove = Meal(
+                                      name: mealList[index]['name'],
+                                      ingredients: ingredients);
+                                  mealToRemove
+                                      .removeMealToDatabase(mealToRemove);
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.edit,
+                                  color: Colors.greenAccent,
+                                ),
+                                onPressed: () {},
+                              ),
+                            ],
                           ),
                         );
                       }));
