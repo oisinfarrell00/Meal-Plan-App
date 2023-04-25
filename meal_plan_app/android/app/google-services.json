@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1056478337814",
+    "project_id": "meal-prep-app-d1535",
+    "storage_bucket": "meal-prep-app-d1535.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1056478337814:android:452417f96358c176a58e37",
+        "android_client_info": {
+          "package_name": "com.example.meal_plan_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1056478337814-9l03t6s8k9mv79c7vvbpr21scbhgdlcl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC04QbMEd8dHNurzE0oqPTKu-fm6j8wC5g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1056478337814-9l03t6s8k9mv79c7vvbpr21scbhgdlcl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

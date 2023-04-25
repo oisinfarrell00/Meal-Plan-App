@@ -1,74 +1,6 @@
 import 'package:flutter/material.dart';
-
-var sundayBreakfastTextController = TextEditingController();
-var sundayLunchTextController = TextEditingController();
-var sundayDinnerTextController = TextEditingController();
-
-List<TextEditingController> sundayTextControllers = [
-  sundayBreakfastTextController,
-  sundayLunchTextController,
-  sundayDinnerTextController
-];
-
-var mondayBreakfastTextController = TextEditingController();
-var mondayLunchTextController = TextEditingController();
-var mondayDinnerTextController = TextEditingController();
-
-List<TextEditingController> mondayTextControllers = [
-  mondayBreakfastTextController,
-  mondayLunchTextController,
-  mondayDinnerTextController
-];
-
-var tuesdayBreakfastTextController = TextEditingController();
-var tuesdayLunchTextController = TextEditingController();
-var tuesdayDinnerTextController = TextEditingController();
-
-List<TextEditingController> tuesdayTextControllers = [
-  tuesdayBreakfastTextController,
-  tuesdayLunchTextController,
-  tuesdayDinnerTextController
-];
-
-var wednesdayBreakfastTextController = TextEditingController();
-var wednesdayLunchTextController = TextEditingController();
-var wednesdayDinnerTextController = TextEditingController();
-
-List<TextEditingController> wednesdayTextControllers = [
-  wednesdayBreakfastTextController,
-  wednesdayLunchTextController,
-  wednesdayDinnerTextController
-];
-
-var thursdayBreakfastTextController = TextEditingController();
-var thursdayLunchTextController = TextEditingController();
-var thursdayDinnerTextController = TextEditingController();
-
-List<TextEditingController> thursdayTextControllers = [
-  thursdayBreakfastTextController,
-  thursdayLunchTextController,
-  thursdayDinnerTextController
-];
-
-var fridayBreakfastTextController = TextEditingController();
-var fridayLunchTextController = TextEditingController();
-var fridayDinnerTextController = TextEditingController();
-
-List<TextEditingController> fridayTextControllers = [
-  fridayBreakfastTextController,
-  fridayLunchTextController,
-  fridayDinnerTextController
-];
-
-var saturdayBreakfastTextController = TextEditingController();
-var saturdayLunchTextController = TextEditingController();
-var saturdayDinnerTextController = TextEditingController();
-
-List<TextEditingController> saturdayTextControllers = [
-  saturdayBreakfastTextController,
-  saturdayLunchTextController,
-  saturdayDinnerTextController
-];
+import 'package:meal_plan_app/drop_down_menu.dart';
+import 'assets/constants.dart' as constants;
 
 class WeeklyMealPlan extends StatefulWidget {
   const WeeklyMealPlan({super.key});
@@ -78,21 +10,12 @@ class WeeklyMealPlan extends StatefulWidget {
 }
 
 class _WeeklyMealPlanState extends State<WeeklyMealPlan> {
-  static const contentWidth = 350.0;
-  static const mealBoxHeaderHeight = 30.0;
-
-  static const dayHeaderTextStyle =
-      TextStyle(fontWeight: FontWeight.bold, fontSize: 30);
-
-  static const mealHeaderTextStyle =
-      TextStyle(fontWeight: FontWeight.bold, fontSize: 20);
-
-  Widget dayTile(String day, List<TextEditingController> controllers) {
+  Widget dayTile(String day) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
-          width: contentWidth,
+          width: constants.CONTENT_WIDTH,
           decoration: BoxDecoration(
             color: Colors.blue,
             border: Border.all(
@@ -102,12 +25,12 @@ class _WeeklyMealPlanState extends State<WeeklyMealPlan> {
           ),
           child: Text(
             day,
-            style: dayHeaderTextStyle,
+            style: constants.DAY_HEADER_TEXT_STYLE,
           ),
         ),
-        mealTile("Breakfast", controllers[0]),
-        mealTile("Lunch", controllers[1]),
-        mealTile("Dinner", controllers[2]),
+        mealTile("Breakfast"),
+        mealTile("Lunch"),
+        mealTile("Dinner"),
         const SizedBox(
           height: 30,
         )
@@ -115,12 +38,12 @@ class _WeeklyMealPlanState extends State<WeeklyMealPlan> {
     );
   }
 
-  Widget mealTile(String meal, TextEditingController textEditingController) {
+  Widget mealTile(String meal) {
     return Column(
       children: [
         Container(
-          width: contentWidth,
-          height: mealBoxHeaderHeight,
+          width: constants.CONTENT_WIDTH,
+          height: constants.MEAL_BOX_HEIGHT,
           decoration: BoxDecoration(
             color: const Color.fromARGB(255, 143, 197, 220),
             border: Border.all(
@@ -130,19 +53,10 @@ class _WeeklyMealPlanState extends State<WeeklyMealPlan> {
           ),
           child: Text(
             meal,
-            style: mealHeaderTextStyle,
+            style: constants.MEAL_HEADER_TEXT_STYLE,
           ),
         ),
-        SizedBox(
-          width: contentWidth,
-          height: 50,
-          child: TextField(
-              controller: textEditingController,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'Enter a search term',
-              )),
-        ),
+        const CustomDropMenuButton()
       ],
     );
   }
@@ -157,7 +71,7 @@ class _WeeklyMealPlanState extends State<WeeklyMealPlan> {
             child: Center(
                 child: Text(
               "Weekly Meal Plan",
-              style: dayHeaderTextStyle,
+              style: constants.MEAL_HEADER_TEXT_STYLE,
             )),
           ),
           Expanded(
@@ -167,13 +81,13 @@ class _WeeklyMealPlanState extends State<WeeklyMealPlan> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    dayTile("Monday", mondayTextControllers),
-                    dayTile("Tuesday", tuesdayTextControllers),
-                    dayTile("Wednesday", wednesdayTextControllers),
-                    dayTile("Thursday", thursdayTextControllers),
-                    dayTile("Friday", fridayTextControllers),
-                    dayTile("Saturday", saturdayTextControllers),
-                    dayTile("Sunday", sundayTextControllers)
+                    dayTile("Monday"),
+                    dayTile("Tuesday"),
+                    dayTile("Wednesday"),
+                    dayTile("Thursday"),
+                    dayTile("Friday"),
+                    dayTile("Saturday"),
+                    dayTile("Sunday")
                   ],
                 ),
               ),
