@@ -1,97 +1,67 @@
 import 'package:flutter/material.dart';
 import 'package:meal_plan_app/providers/weekly_meal_plan_provider.dart';
+import 'package:meal_plan_app/widgets/meal_display_widget.dart';
 import 'package:provider/provider.dart';
 import '../assets/constants.dart' as constants;
 
-class WeeklyMealPlanDisplay extends StatefulWidget {
-  const WeeklyMealPlanDisplay({super.key});
+class WeeklyMealPlanDisplay extends StatelessWidget {
+  const WeeklyMealPlanDisplay({Key? key}) : super(key: key);
+
+  static const List<String> daysOfWeek = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
+  ];
 
   @override
-  State<WeeklyMealPlanDisplay> createState() => _WeeklyMealPlanDisplayState();
-}
+  Widget build(BuildContext context) {
+    final weeklyMealProvider =
+        Provider.of<MealSelectionsProvider>(context, listen: false);
 
-class _WeeklyMealPlanDisplayState extends State<WeeklyMealPlanDisplay> {
-  late MealSelectionsProvider provider;
+    Widget buildMealDisplay(String displayName, int dayIndex) {
+      final meals = weeklyMealProvider.weeklyMeals[dayIndex];
+      return Column(
+        children: [
+          MealDisplayWidget(
+            displayName: displayName,
+            breakfast: meals[constants.breakfast],
+            dinner: meals[constants.lunch],
+            lunch: meals[constants.dinner],
+          ),
+          //const SizedBox(height: 20),
+        ],
+      );
+    }
+
+    return Column(
+      children: [
+        for (int i = 0; i < daysOfWeek.length; i++)
+          buildMealDisplay(daysOfWeek[i].substring(0, 3).toUpperCase(),
+              getDayIndex(daysOfWeek[i])),
+      ],
+    );
+  }
 
   int getDayIndex(String day) {
     switch (day) {
       case 'Monday':
-        {
-          return constants.monday;
-        }
+        return constants.monday;
       case 'Tuesday':
-        {
-          return constants.tuesday;
-        }
+        return constants.tuesday;
       case 'Wednesday':
-        {
-          return constants.wednesday;
-        }
+        return constants.wednesday;
       case 'Thursday':
-        {
-          return constants.thursday;
-        }
+        return constants.thursday;
       case 'Friday':
-        {
-          return constants.friday;
-        }
+        return constants.friday;
       case 'Saturday':
-        {
-          return constants.saturday;
-        }
+        return constants.saturday;
       default:
-        {
-          return constants.sunday;
-        }
+        return constants.sunday;
     }
-  }
-
-  Widget dailyMeals(String day) {
-    int dayIndex = getDayIndex(day);
-    return Column(
-      children: [
-        Text(
-          day,
-          style: const TextStyle(fontSize: 10),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(provider.weeklyMeals[dayIndex][constants.breakfast]),
-            const SizedBox(
-              width: 20,
-            ),
-            Text(provider.weeklyMeals[dayIndex][constants.lunch]),
-            const SizedBox(
-              width: 20,
-            ),
-            Text(provider.weeklyMeals[dayIndex][constants.dinner])
-          ],
-        ),
-      ],
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    provider = Provider.of<MealSelectionsProvider>(context, listen: false);
-    return Column(
-      children: [
-        dailyMeals("Monday"),
-        const SizedBox(height: 20),
-        dailyMeals("Tuesday"),
-        const SizedBox(height: 20),
-        dailyMeals("Wednesday"),
-        const SizedBox(height: 20),
-        dailyMeals("Thursday"),
-        const SizedBox(height: 20),
-        dailyMeals("Friday"),
-        const SizedBox(height: 20),
-        dailyMeals("Saturday"),
-        const SizedBox(height: 20),
-        dailyMeals("Sunday"),
-        const SizedBox(height: 20),
-      ],
-    );
   }
 }
