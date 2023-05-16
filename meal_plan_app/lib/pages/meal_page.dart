@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:meal_plan_app/meal.dart';
-import 'add_meal_dialog_widget.dart';
-import 'assets/constants.dart' as constants;
+import 'package:meal_plan_app/models/meal.dart';
+import '../widgets/add_meal_dialog_widget.dart';
+import '../assets/constants.dart' as constants;
 
 class MealPage extends StatefulWidget {
   const MealPage({super.key});

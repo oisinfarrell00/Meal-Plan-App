@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:meal_plan_app/weekly_plan_display.dart';
-import 'package:meal_plan_app/weekly_plan_selecter.dart';
-import 'assets/constants.dart' as constants;
+import 'package:meal_plan_app/widgets/weekly_plan_display.dart';
+import 'package:meal_plan_app/widgets/weekly_plan_selecter.dart';
+import '../assets/constants.dart' as constants;
 
 class WeeklyMealPlan extends StatefulWidget {
   const WeeklyMealPlan({super.key});

@@ -1,6 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:meal_plan_app/home_page.dart';
+import 'package:meal_plan_app/pages/home_page.dart';
 import 'package:meal_plan_app/providers/weekly_meal_plan_provider.dart';
 import 'package:provider/provider.dart';
 

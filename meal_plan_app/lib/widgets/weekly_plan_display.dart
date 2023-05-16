@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:meal_plan_app/providers/weekly_meal_plan_provider.dart';
 import 'package:provider/provider.dart';
-import 'assets/constants.dart' as constants;
+import '../assets/constants.dart' as constants;
 
 class WeeklyMealPlanDisplay extends StatefulWidget {
   const WeeklyMealPlanDisplay({super.key});
@@ -50,7 +50,10 @@ class _WeeklyMealPlanDisplayState extends State<WeeklyMealPlanDisplay> {
     int dayIndex = getDayIndex(day);
     return Column(
       children: [
-        Text(day),
+        Text(
+          day,
+          style: const TextStyle(fontSize: 10),
+        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
