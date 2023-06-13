@@ -14,7 +14,7 @@ class MealSelectionsProvider extends ChangeNotifier {
   ];
 
   MealSelectionsProvider() {
-    // _fetchMealPlanFromFirestore();
+    _fetchMealPlanFromFirestore();
   }
 
   Future<void> _fetchMealPlanFromFirestore() async {
@@ -30,6 +30,8 @@ class MealSelectionsProvider extends ChangeNotifier {
         final List<String> meals = _deserializeMeals(data);
         final int dayIndex = _getDayIndexFromDocumentId(documentId);
 
+        debugPrint("data from db $meals");
+
         if (dayIndex != -1) {
           weeklyMeals[dayIndex] = meals;
         }
@@ -42,8 +44,54 @@ class MealSelectionsProvider extends ChangeNotifier {
     }
   }
 
+  void uploadWeeklyMealsToFirestore(List<List<String>> weeklyMeals) async {
+    try {
+      final CollectionReference<Map<String, dynamic>> collectionRef =
+          FirebaseFirestore.instance.collection('weekly_plan');
+
+      for (int i = 0; i < weeklyMeals.length; i++) {
+        final List<String> meals = weeklyMeals[i];
+        final String day = _getDayFromIndex(i);
+
+        final Map<String, dynamic> data = {
+          'breakfast': meals[0],
+          'lunch': meals[1],
+          'dinner': meals[2],
+        };
+
+        await collectionRef.doc(day).set(data);
+      }
+
+      debugPrint('Weekly meals uploaded to Firestore successfully');
+    } catch (e) {
+      debugPrint('Error uploading weekly meals to Firestore: $e');
+    }
+  }
+
+  String _getDayFromIndex(int index) {
+    switch (index) {
+      case 0:
+        return 'monday';
+      case 1:
+        return 'tuesday';
+      case 2:
+        return 'wednesday';
+      case 3:
+        return 'thursday';
+      case 4:
+        return 'friday';
+      case 5:
+        return 'saturday';
+      case 6:
+        return 'sunday';
+      default:
+        throw Exception('Invalid day index');
+    }
+  }
+
   void updateMealSelection(int day, int meal, newValue) {
     weeklyMeals[day][meal] = newValue;
+    uploadWeeklyMealsToFirestore(weeklyMeals);
   }
 
   List<String> _deserializeMeals(Map<String, dynamic> data) {

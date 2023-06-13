@@ -63,7 +63,10 @@ class _WeeklyMealPlanSelecterState extends State<WeeklyMealPlanSelecter> {
             'chili',
             'corn',
             'bread',
-            'pasta'
+            'pasta',
+            'egg',
+            'curry',
+            'wrap'
           ], // This is the options for what the user can select. Must be changed
           day: dayIndex,
           meal: mealIndex,
