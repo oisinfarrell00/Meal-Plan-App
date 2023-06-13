@@ -7,6 +7,12 @@ import '../assets/constants.dart' as constants;
 class WeeklyMealPlanDisplay extends StatelessWidget {
   const WeeklyMealPlanDisplay({Key? key}) : super(key: key);
 
+  static const TextStyle mealHeading = TextStyle(
+    fontSize: 15,
+    fontWeight: FontWeight.bold,
+    color: Colors.black,
+  );
+
   static const List<String> daysOfWeek = [
     'Monday',
     'Tuesday',
@@ -23,22 +29,50 @@ class WeeklyMealPlanDisplay extends StatelessWidget {
         Provider.of<MealSelectionsProvider>(context, listen: false);
 
     Widget buildMealDisplay(String displayName, int dayIndex) {
-      final meals = weeklyMealProvider.weeklyMeals[dayIndex];
-      return Column(
-        children: [
-          MealDisplayWidget(
-            displayName: displayName,
-            breakfast: meals[constants.breakfast],
-            dinner: meals[constants.lunch],
-            lunch: meals[constants.dinner],
-          ),
-          //const SizedBox(height: 20),
-        ],
+      var meals = weeklyMealProvider.weeklyMeals[dayIndex];
+      debugPrint("Meal display: $meals");
+      return MealDisplayWidget(
+        displayName: displayName,
+        breakfast: meals[constants.breakfast],
+        dinner: meals[constants.dinner],
+        lunch: meals[constants.lunch],
       );
     }
 
     return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
+        Row(children: [
+          const Expanded(
+            flex: 1,
+            child: Text(""),
+          ),
+          Expanded(
+            flex: 5,
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: const [
+                  Text(
+                    "Breakfast",
+                    style: mealHeading,
+                  ),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Text(
+                    "Lunch",
+                    style: mealHeading,
+                  ),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Text(
+                    "Dinner",
+                    style: mealHeading,
+                  )
+                ]),
+          )
+        ]),
         for (int i = 0; i < daysOfWeek.length; i++)
           buildMealDisplay(daysOfWeek[i].substring(0, 3).toUpperCase(),
               getDayIndex(daysOfWeek[i])),

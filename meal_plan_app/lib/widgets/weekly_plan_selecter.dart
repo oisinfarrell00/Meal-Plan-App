@@ -58,11 +58,16 @@ class _WeeklyMealPlanSelecterState extends State<WeeklyMealPlanSelecter> {
           ),
         ),
         MealDropDown(
-            value: "Egg",
-            items: const ['Egg', 'Wrap', 'Curry'],
-            day: dayIndex,
-            meal: mealIndex,
-            onChanged: (value) => {}),
+          items: const [
+            '-',
+            'chili',
+            'corn',
+            'bread',
+            'pasta'
+          ], // This is the options for what the user can select. Must be changed
+          day: dayIndex,
+          meal: mealIndex,
+        ),
       ],
     );
   }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../Meal.dart';
+import '../models/meal.dart';
 
 class TextSubmitForm extends StatefulWidget {
   const TextSubmitForm({Key? key}) : super(key: key);

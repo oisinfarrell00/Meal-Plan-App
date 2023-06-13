@@ -4,18 +4,11 @@ import 'package:provider/provider.dart';
 
 // ignore: must_be_immutable
 class MealDropDown extends StatefulWidget {
-  String value;
   List<String> items;
-  final void Function(String?) onChanged;
   int day;
   int meal;
   MealDropDown(
-      {super.key,
-      required this.value,
-      required this.items,
-      required this.day,
-      required this.meal,
-      required this.onChanged});
+      {super.key, required this.items, required this.day, required this.meal});
 
   @override
   State<MealDropDown> createState() => _MealDropDownState();
@@ -25,7 +18,7 @@ class _MealDropDownState extends State<MealDropDown> {
   @override
   Widget build(BuildContext context) {
     var selectedMeals = context.watch<MealSelectionsProvider>().weeklyMeals;
-    debugPrint(selectedMeals.toString());
+    debugPrint("Selected meals: $selectedMeals");
     return Consumer<MealSelectionsProvider>(
       builder: (context, mealSelectionsProvider, _) {
         return Container(
@@ -43,7 +36,8 @@ class _MealDropDownState extends State<MealDropDown> {
               }).toList(),
               onChanged: (String? newValue) {
                 setState(() {
-                  widget.value = newValue!;
+                  // This is required to show the display value on the dropdown menu and update the meal plan. Not best
+                  // practice but will do for now!
                 });
                 final provider =
                     Provider.of<MealSelectionsProvider>(context, listen: false);

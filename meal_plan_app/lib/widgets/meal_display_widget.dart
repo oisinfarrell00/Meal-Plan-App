@@ -23,6 +23,7 @@ class _MealDisplayWidgetState extends State<MealDisplayWidget> {
     return Center(
       child: SizedBox(
         width: 350,
+        height: 60,
         child: Container(
           decoration: BoxDecoration(
             border: Border.all(),
@@ -32,11 +33,10 @@ class _MealDisplayWidgetState extends State<MealDisplayWidget> {
               Expanded(
                 flex: 1,
                 child: Container(
-                    padding: const EdgeInsets.all(5.0),
                     decoration: const BoxDecoration(
                       color: Colors.lightBlue,
                     ),
-                    child: Text(widget.displayName)),
+                    child: Center(child: Text(widget.displayName))),
               ),
               Expanded(
                 flex: 5,
