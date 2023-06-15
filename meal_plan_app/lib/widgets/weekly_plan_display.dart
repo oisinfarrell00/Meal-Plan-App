@@ -25,12 +25,21 @@ class WeeklyMealPlanDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final weeklyMealProvider = Provider.of<MealSelectionsProvider>(context);
+
+    if (!weeklyMealProvider.dataFetched) {
+      return const CircularProgressIndicator(); // Show a loading indicator while fetching data
+    }
+
+    return buildWeeklyMealPlan(context);
+  }
+
+  Widget buildWeeklyMealPlan(BuildContext context) {
     final weeklyMealProvider =
         Provider.of<MealSelectionsProvider>(context, listen: false);
 
     Widget buildMealDisplay(String displayName, int dayIndex) {
       var meals = weeklyMealProvider.weeklyMeals[dayIndex];
-      debugPrint("Meal display: $meals");
       return MealDisplayWidget(
         displayName: displayName,
         breakfast: meals[constants.breakfast],

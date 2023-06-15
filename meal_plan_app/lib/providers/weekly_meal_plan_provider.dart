@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MealSelectionsProvider extends ChangeNotifier {
+  bool dataFetched = false;
+
   List<List<String>> weeklyMeals = [
     ['-', '-', '-'], // Monday
     ['-', '-', '-'], // Tuesday
@@ -30,14 +32,13 @@ class MealSelectionsProvider extends ChangeNotifier {
         final List<String> meals = _deserializeMeals(data);
         final int dayIndex = _getDayIndexFromDocumentId(documentId);
 
-        debugPrint("data from db $meals");
-
         if (dayIndex != -1) {
           weeklyMeals[dayIndex] = meals;
         }
       }
 
       notifyListeners();
+      dataFetched = true;
     } catch (e) {
       // Handle any error that occurred while fetching the data
       debugPrint('Error fetching meal plan: $e');
