@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-List<String> shoppingList = [];
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ShoppingList extends StatefulWidget {
   const ShoppingList({super.key});
@@ -10,40 +9,123 @@ class ShoppingList extends StatefulWidget {
 }
 
 class _ShoppingListState extends State<ShoppingList> {
+  final TextEditingController _textEditingController = TextEditingController();
+  List<dynamic> meals = [];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView.builder(
-          itemCount: shoppingList.length,
-          itemBuilder: (BuildContext context, int index) {
-            return ListTile(
-                leading: const Icon(Icons.list),
-                trailing: IconButton(
-                  icon: const Icon(
-                    Icons.delete,
-                    color: Color.fromARGB(255, 235, 94, 84),
-                  ),
-                  onPressed: () => _removeItem(index),
-                ),
-                title: Text(shoppingList[index]));
+      body: StreamBuilder(
+          stream: FirebaseFirestore.instance
+              .collection('weekly_plan')
+              .doc('shopping_list')
+              .snapshots(),
+          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+            if (!snapshot.hasData) {
+              return const CircularProgressIndicator();
+            } else {
+              meals = snapshot.data['list'];
+              debugPrint(meals.toString());
+
+              return ListView.builder(
+                  itemCount: meals.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return ListTile(
+                        leading: const Icon(Icons.list),
+                        trailing: IconButton(
+                          icon: const Icon(
+                            Icons.delete,
+                            color: Color.fromARGB(255, 235, 94, 84),
+                          ),
+                          onPressed: () => removeItemFromShoppingList(index),
+                        ),
+                        title: Text(meals[index]));
+                  });
+            }
           }),
       floatingActionButton: FloatingActionButton(
-        onPressed: _addItem,
+        onPressed: () {
+          _showAddItemDialog();
+        },
         tooltip: 'Add Item',
         child: const Icon(Icons.add),
       ),
     );
   }
 
-  void _addItem() {
-    setState(() {
-      shoppingList.add('New Item');
-    });
+  Future<void> addItemToShoppingList(String newItem) async {
+    final collectionReference =
+        FirebaseFirestore.instance.collection('weekly_plan');
+    final documentReference = collectionReference.doc('shopping_list');
+
+    final documentSnapshot = await documentReference.get();
+    if (documentSnapshot.exists) {
+      final data = documentSnapshot.data();
+      if (data != null && data.containsKey('list')) {
+        final list = data['list'] as List<dynamic>;
+        list.add(newItem);
+        await documentReference.update({'list': list});
+        debugPrint('Item added successfully.');
+      } else {
+        debugPrint('No list found in the document.');
+      }
+    } else {
+      debugPrint('Document does not exist.');
+    }
   }
 
-  void _removeItem(int index) {
-    setState(() {
-      shoppingList.removeAt(index);
-    });
+  Future<void> removeItemFromShoppingList(int index) async {
+    final collectionReference =
+        FirebaseFirestore.instance.collection('weekly_plan');
+    final documentReference = collectionReference.doc('shopping_list');
+
+    final documentSnapshot = await documentReference.get();
+    if (documentSnapshot.exists) {
+      final data = documentSnapshot.data();
+      if (data != null && data.containsKey('list')) {
+        final list = data['list'] as List<dynamic>;
+        if (index >= 0 && index < list.length) {
+          list.removeAt(index);
+          await documentReference.update({'list': list});
+          debugPrint('Item removed successfully.');
+        } else {
+          debugPrint('Invalid index. Cannot remove item.');
+        }
+      } else {
+        debugPrint('No list found in the document.');
+      }
+    } else {
+      debugPrint('Document does not exist.');
+    }
+  }
+
+  void _showAddItemDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Add Item'),
+          content: TextField(
+            controller: _textEditingController,
+            decoration: const InputDecoration(hintText: 'Enter item name'),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Add'),
+              onPressed: () {
+                addItemToShoppingList(_textEditingController.text);
+                _textEditingController.clear();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:meal_plan_app/widgets/meal_dropdown_widget.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../assets/constants.dart' as constants;
 
 class WeeklyMealPlanSelecter extends StatefulWidget {
@@ -57,20 +59,28 @@ class _WeeklyMealPlanSelecterState extends State<WeeklyMealPlanSelecter> {
             style: constants.MEAL_HEADER_TEXT_STYLE,
           ),
         ),
-        MealDropDown(
-          items: const [
-            '-',
-            'chili',
-            'corn',
-            'bread',
-            'pasta',
-            'egg',
-            'curry',
-            'wrap'
-          ], // This is the options for what the user can select. Must be changed
-          day: dayIndex,
-          meal: mealIndex,
-        ),
+        StreamBuilder(
+            stream: FirebaseFirestore.instance.collection('Meals').snapshots(),
+            builder: (BuildContext context,
+                AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
+              if (!snapshot.hasData) {
+                return const CircularProgressIndicator();
+              } else {
+                final meals = snapshot.data!.docs;
+
+                var mealList = ['-'];
+                for (var meal in meals) {
+                  final data = meal.data();
+                  final mealName = data['name'] as String;
+                  mealList.add(mealName);
+                }
+                return MealDropDown(
+                  items: mealList,
+                  day: dayIndex,
+                  meal: mealIndex,
+                );
+              }
+            }),
       ],
     );
   }
