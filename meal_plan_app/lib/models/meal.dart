@@ -16,7 +16,7 @@ class Meal {
   Map<String, dynamic> toMap() {
     return {
       'name': name,
-      'ingrediets': ingredients,
+      'ingredients': ingredients,
     };
   }
 
