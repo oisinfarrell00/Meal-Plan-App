@@ -3,15 +3,12 @@ import 'package:flutter/material.dart';
 
 class Meal {
   String name;
-  List<String> ingredients;
+  List<Ingredient> ingredients;
 
   Meal({
     required this.name,
     required this.ingredients,
   });
-
-  static Meal fromJSON(Map<String, dynamic> json) =>
-      Meal(name: json['name'], ingredients: json['ingredients']);
 
   Map<String, dynamic> toMap() {
     return {
@@ -22,36 +19,43 @@ class Meal {
 
   Future<void> addMealToDatabase(Meal meal) async {
     try {
-      final docUser =
+      final mealRef =
           FirebaseFirestore.instance.collection("Meals").doc(meal.name);
-      await docUser.set(meal.toMap());
+
+      List<Map<String, dynamic>> ingredientsList =
+          meal.ingredients.map((ingredient) {
+        return {
+          'name': ingredient.name,
+          'quantity': ingredient.quantity,
+          'quantityType': ingredient.quantityType
+        };
+      }).toList();
+
+      await mealRef.set({'name': meal.name, 'ingredients': ingredientsList});
     } catch (e) {
       debugPrint("Error adding meal to database: $e");
     }
   }
 
-  Future<void> removeMealToDatabase(Meal meal) async {
+  Future<void> removeMealFromDatabase(Meal meal) async {
     try {
-      final docUser =
-          FirebaseFirestore.instance.collection("Meals").doc(meal.name);
-      debugPrint(docUser.toString());
-      await docUser.delete();
+      final mealRef =
+          FirebaseFirestore.instance.collection('Meals').doc(meal.name);
+      await mealRef.delete();
     } catch (e) {
-      debugPrint("Error removing meal to database: $e");
+      debugPrint("Error removing meal from database: $e");
     }
   }
+}
 
-  Future<void> addMealsToDatabase(List<Meal> meals) async {
-    try {
-      final batch = FirebaseFirestore.instance.batch();
-      for (var meal in meals) {
-        final docUser =
-            FirebaseFirestore.instance.collection("Meals").doc(meal.name);
-        batch.set(docUser, meal.toMap());
-      }
-      await batch.commit();
-    } catch (e) {
-      debugPrint("Error adding meals to database: $e");
-    }
-  }
+class Ingredient {
+  final String name;
+  final double quantity;
+  final String quantityType;
+
+  Ingredient({
+    required this.name,
+    required this.quantity,
+    required this.quantityType,
+  });
 }

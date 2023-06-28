@@ -12,7 +12,7 @@ class _TextSubmitWidgetState extends State<TextSubmitForm> {
   final addFoodNameController = TextEditingController();
   final addFoodIngredientController = TextEditingController();
 
-  var ingredients = <String>[];
+  var ingredients = <Ingredient>[];
 
   @override
   void dispose() {
@@ -42,7 +42,7 @@ class _TextSubmitWidgetState extends State<TextSubmitForm> {
   }
 
   String? validate(text) {
-    final validCharacters = RegExp(r'^[a-zA-Z&%=]+$');
+    final validCharacters = RegExp(r'^[a-zA-Z&%= ]+$');
     if (text.toString().replaceAll(" ", "") == "") {
       return 'Can\'t be empty';
     }
@@ -105,8 +105,11 @@ class _TextSubmitWidgetState extends State<TextSubmitForm> {
                                 onPressed: () {
                                   if (addFoodIngredientController
                                       .text.isNotEmpty) {
-                                    ingredients
-                                        .add(addFoodIngredientController.text);
+                                    Ingredient ingredientToAdd = Ingredient(
+                                        name: addFoodIngredientController.text,
+                                        quantity: 0,
+                                        quantityType: 'grams');
+                                    ingredients.add(ingredientToAdd);
                                     addFoodIngredientController.clear();
                                   }
                                 }),

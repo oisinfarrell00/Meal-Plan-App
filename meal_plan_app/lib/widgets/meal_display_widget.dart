@@ -33,25 +33,45 @@ class _MealDisplayWidgetState extends State<MealDisplayWidget> {
               Expanded(
                 flex: 1,
                 child: Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.lightBlue,
-                    ),
-                    child: Center(child: Text(widget.displayName))),
+                  decoration: const BoxDecoration(
+                    color: Colors.lightBlue,
+                  ),
+                  child: Center(child: Text(widget.displayName)),
+                ),
               ),
               Expanded(
                 flex: 5,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Text(widget.breakfast),
+                    Flexible(
+                      child: Text(
+                        widget.breakfast,
+                        maxLines: 1, // Restrict to one line
+                        overflow: TextOverflow
+                            .ellipsis, // Show ellipsis if text overflows
+                      ),
+                    ),
                     const SizedBox(
                       width: 20,
                     ),
-                    Text(widget.lunch),
+                    Flexible(
+                      child: Text(
+                        widget.lunch,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                     const SizedBox(
                       width: 20,
                     ),
-                    Text(widget.dinner)
+                    Flexible(
+                      child: Text(
+                        widget.dinner,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                   ],
                 ),
               ),

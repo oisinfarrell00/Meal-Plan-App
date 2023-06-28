@@ -10,7 +10,7 @@ class ShoppingList extends StatefulWidget {
 
 class _ShoppingListState extends State<ShoppingList> {
   final TextEditingController _textEditingController = TextEditingController();
-  List<dynamic> meals = [];
+  List<dynamic> shoppingList = [];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,11 +23,11 @@ class _ShoppingListState extends State<ShoppingList> {
             if (!snapshot.hasData) {
               return const CircularProgressIndicator();
             } else {
-              meals = snapshot.data['list'];
-              debugPrint(meals.toString());
+              shoppingList = snapshot.data['list'];
+              debugPrint(shoppingList.toString());
 
               return ListView.builder(
-                  itemCount: meals.length,
+                  itemCount: shoppingList.length,
                   itemBuilder: (BuildContext context, int index) {
                     return ListTile(
                         leading: const Icon(Icons.list),
@@ -38,7 +38,7 @@ class _ShoppingListState extends State<ShoppingList> {
                           ),
                           onPressed: () => removeItemFromShoppingList(index),
                         ),
-                        title: Text(meals[index]));
+                        title: Text(shoppingList[index]));
                   });
             }
           }),

@@ -64,7 +64,10 @@ class _MealDropDownState extends State<MealDropDown> {
               .data(); // this could be good for getting all info about the meals.
           if (mealData != null && mealData.containsKey('ingredients')) {
             var ingredients = mealData['ingredients'];
-            shoppingList.addAll(ingredients);
+            for (int index = 0; index < ingredients.length; index++) {
+              shoppingList.add(ingredients[index]['name']);
+            }
+            //shoppingList.addAll(ingredients);
           } else {
             debugPrint('No ingredients found in the document.');
           }

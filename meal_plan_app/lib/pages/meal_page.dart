@@ -15,7 +15,7 @@ class _MealPageState extends State<MealPage> {
   Widget addMealDialog = const TextSubmitForm();
   final addFoodNameController = TextEditingController();
   final addFoodIngredientController = TextEditingController();
-  var ingredients = <String>[];
+  var ingredients = <Ingredient>[];
 
   @override
   void dispose() {
@@ -96,7 +96,7 @@ class _MealPageState extends State<MealPage> {
                                       name: mealList[index]['name'],
                                       ingredients: ingredients);
                                   mealToRemove
-                                      .removeMealToDatabase(mealToRemove);
+                                      .removeMealFromDatabase(mealToRemove);
                                 },
                               ),
                               IconButton(
