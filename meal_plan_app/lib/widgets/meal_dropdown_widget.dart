@@ -47,16 +47,9 @@ class _MealDropDownState extends State<MealDropDown> {
     );
   }
 
-  Future<void> updateShoppingList(String newItem) async {
+  Future<dynamic> gatherIngredientsForMealPlan() async {
     final provider =
         Provider.of<MealSelectionsProvider>(context, listen: false);
-    provider.updateMealSelection(widget.day, widget.meal, newItem);
-
-    final shoppingListCollectionReference =
-        FirebaseFirestore.instance.collection('weekly_plan');
-    final shoppingListDocumentReference =
-        shoppingListCollectionReference.doc('shopping_list');
-
     final mealsCollectionReference =
         FirebaseFirestore.instance.collection('Meals');
 
@@ -78,14 +71,28 @@ class _MealDropDownState extends State<MealDropDown> {
         }
       }
     }
+    return shoppingList;
+  }
+
+  Future<void> updateShoppingList(String newItem) async {
+    final provider =
+        Provider.of<MealSelectionsProvider>(context, listen: false);
+    provider.updateMealSelection(widget.day, widget.meal, newItem);
+
+    final shoppingListCollectionReference =
+        FirebaseFirestore.instance.collection('weekly_plan');
+    final shoppingListDocumentReference =
+        shoppingListCollectionReference.doc('shopping_list');
+
+    var mealPlanIngredients = await gatherIngredientsForMealPlan();
 
     final documentSnapshot = await shoppingListDocumentReference.get();
     if (documentSnapshot.exists) {
       final data = documentSnapshot.data();
       if (data != null && data.containsKey('list')) {
-        final list = data['list'] as List<dynamic>;
-        list.addAll(shoppingList);
-        await shoppingListDocumentReference.update({'list': list});
+        final existingList = data['list'] as List<dynamic>;
+        final shoppingList = addItemsToList(existingList, mealPlanIngredients);
+        await shoppingListDocumentReference.update({'list': shoppingList});
         debugPrint('Items added successfully.');
       } else {
         debugPrint('No list found in the document.');
@@ -93,5 +100,19 @@ class _MealDropDownState extends State<MealDropDown> {
     } else {
       debugPrint('Document does not exist.');
     }
+  }
+
+  List<dynamic> addItemsToList(
+      List<dynamic> existingList, List<dynamic> itemsToAdd) {
+    List<dynamic> resultList = List.from(
+        existingList); // Create a new list with the contents of existingList
+
+    for (int index = 0; index < itemsToAdd.length; index++) {
+      if (!resultList.contains(itemsToAdd[index])) {
+        resultList.add(itemsToAdd[index]);
+      }
+    }
+
+    return resultList;
   }
 }
