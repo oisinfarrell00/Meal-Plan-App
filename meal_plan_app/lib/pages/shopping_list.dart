@@ -60,10 +60,14 @@ class _ShoppingListState extends State<ShoppingList> {
     final documentSnapshot = await documentReference.get();
     if (documentSnapshot.exists) {
       final data = documentSnapshot.data();
-      if (data != null && data.containsKey('list')) {
+      if (data != null &&
+          data.containsKey('list') &&
+          data.containsKey('extras')) {
         final list = data['list'] as List<dynamic>;
+        final extras = data['extras'] as List<dynamic>;
         list.add(newItem);
-        await documentReference.update({'list': list});
+        extras.add(newItem);
+        await documentReference.update({'list': list, 'extras': extras});
         debugPrint('Item added successfully.');
       } else {
         debugPrint('No list found in the document.');
@@ -83,9 +87,13 @@ class _ShoppingListState extends State<ShoppingList> {
       final data = documentSnapshot.data();
       if (data != null && data.containsKey('list')) {
         final list = data['list'] as List<dynamic>;
+        final extras = data['extras'] as List<dynamic>;
         if (index >= 0 && index < list.length) {
+          if (extras.contains(list[index])) {
+            extras.remove(list[index]);
+          }
           list.removeAt(index);
-          await documentReference.update({'list': list});
+          await documentReference.update({'list': list, 'extras': extras});
           debugPrint('Item removed successfully.');
         } else {
           debugPrint('Invalid index. Cannot remove item.');

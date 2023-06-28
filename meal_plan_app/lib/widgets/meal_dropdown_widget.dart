@@ -90,9 +90,10 @@ class _MealDropDownState extends State<MealDropDown> {
     if (documentSnapshot.exists) {
       final data = documentSnapshot.data();
       if (data != null && data.containsKey('list')) {
-        final existingList = data['list'] as List<dynamic>;
-        final shoppingList = addItemsToList(existingList, mealPlanIngredients);
-        await shoppingListDocumentReference.update({'list': shoppingList});
+        final extras = data['extras'] as List<dynamic>;
+        final shoppingList = generateShoppingList(mealPlanIngredients, extras);
+        await shoppingListDocumentReference
+            .set({'list': shoppingList, 'extras': extras});
         debugPrint('Items added successfully.');
       } else {
         debugPrint('No list found in the document.');
@@ -102,17 +103,17 @@ class _MealDropDownState extends State<MealDropDown> {
     }
   }
 
-  List<dynamic> addItemsToList(
-      List<dynamic> existingList, List<dynamic> itemsToAdd) {
-    List<dynamic> resultList = List.from(
-        existingList); // Create a new list with the contents of existingList
+  List<dynamic> generateShoppingList(
+      List<dynamic> itemsToAdd, List<dynamic> extras) {
+    Set<dynamic> uniqueItems = Set<dynamic>.from(itemsToAdd);
 
-    for (int index = 0; index < itemsToAdd.length; index++) {
-      if (!resultList.contains(itemsToAdd[index])) {
-        resultList.add(itemsToAdd[index]);
+    for (int index = 0; index < extras.length; index++) {
+      if (!uniqueItems.contains(extras[index])) {
+        uniqueItems.add(extras[index]);
       }
     }
 
+    List<dynamic> resultList = uniqueItems.toList();
     return resultList;
   }
 }
