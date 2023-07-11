@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:meal_plan_app/models/meal.dart';
-import '../widgets/add_meal_dialog_widget.dart';
+import 'package:meal_plan_app/pages/create_meal_page.dart';
 import '../assets/constants.dart' as constants;
 
 class MealPage extends StatefulWidget {
@@ -12,32 +12,7 @@ class MealPage extends StatefulWidget {
 }
 
 class _MealPageState extends State<MealPage> {
-  Widget addMealDialog = const TextSubmitForm();
-  final addFoodNameController = TextEditingController();
-  final addFoodIngredientController = TextEditingController();
   var ingredients = <Ingredient>[];
-
-  @override
-  void dispose() {
-    addFoodNameController.dispose();
-    addFoodIngredientController.dispose();
-    super.dispose();
-  }
-
-  void cleanUpDialog() {
-    Navigator.of(context).pop();
-    addFoodIngredientController.clear();
-    addFoodNameController.clear();
-    ingredients = [];
-  }
-
-  void showAddMealDialog() {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return addMealDialog;
-        });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +31,13 @@ class _MealPageState extends State<MealPage> {
                   SizedBox(
                     width: constants.CONTENT_WIDTH,
                     child: ElevatedButton(
-                        onPressed: showAddMealDialog,
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const CreateMealPage()),
+                          );
+                        },
                         child: const Text("Add Meal")),
                   )
                 ],
