@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/meal.dart';
+import 'package:meal_plan_app/pages/add_ingredients_to_meal_page.dart';
 
 class CreateMealPage extends StatefulWidget {
   const CreateMealPage({super.key});
@@ -10,40 +10,22 @@ class CreateMealPage extends StatefulWidget {
 
 class _CreateMealPageState extends State<CreateMealPage> {
   final addFoodNameController = TextEditingController();
-  final addFoodIngredientController = TextEditingController();
-  final addFoodQuantityController = TextEditingController();
-  String quantityUnit = 'g';
-  List<String> quantityUnits = ['ml', 'kg', 'piece', 'mg', 'g'];
+  final _formKey = GlobalKey<FormState>();
+  String _name = '';
+  String ingredientsErrorText = '';
 
-  var ingredients = <Ingredient>[];
+  bool isLowCal = false;
+  bool isLowTime = false;
 
   @override
   void dispose() {
     addFoodNameController.dispose();
-    addFoodIngredientController.dispose();
-    addFoodQuantityController.dispose();
     super.dispose();
   }
 
   void cleanUpDialog() {
     Navigator.of(context).pop();
-    addFoodIngredientController.clear();
-    addFoodQuantityController.clear();
     addFoodNameController.clear();
-    ingredients = [];
-  }
-
-  final _formKey = GlobalKey<FormState>();
-  String _name = '';
-  String ingredientsErrorText = '';
-
-  void _submit() {
-    if (_formKey.currentState!.validate()) {
-      var meal =
-          Meal(name: addFoodNameController.text, ingredients: ingredients);
-      meal.addMealToDatabase(meal);
-      cleanUpDialog();
-    }
   }
 
   String? validate(text) {
@@ -58,18 +40,61 @@ class _CreateMealPageState extends State<CreateMealPage> {
     return null;
   }
 
-  void addIngredientToMeal() {
-    // Needs validation beyond is empty
-    if (addFoodIngredientController.text.isNotEmpty &&
-        addFoodQuantityController.text.isNotEmpty) {
-      Ingredient ingredientToAdd = Ingredient(
-          name: addFoodIngredientController.text,
-          quantity: double.parse(addFoodQuantityController.text),
-          quantityType: quantityUnit);
-      ingredients.add(ingredientToAdd);
-      addFoodIngredientController.clear();
-      addFoodQuantityController.clear();
-    }
+  // clean up
+  Widget extraOptions() {
+    return Column(children: [
+      const SizedBox(height: 10),
+      Row(
+        children: <Widget>[
+          const SizedBox(
+            width: 10,
+          ),
+          const Text(
+            'Low Calorie',
+            style: TextStyle(fontSize: 17.0),
+          ),
+          const SizedBox(width: 10),
+          Checkbox(
+            value: isLowCal,
+            onChanged: (bool? newBool) {
+              setState(() {
+                isLowCal = newBool!;
+              });
+            },
+          ),
+        ],
+      ),
+      Row(
+        children: <Widget>[
+          const SizedBox(
+            width: 10,
+          ),
+          const Text(
+            'Low Time',
+            style: TextStyle(fontSize: 17.0),
+          ),
+          const SizedBox(width: 25),
+          Checkbox(
+            value: isLowTime,
+            onChanged: (bool? newBool) {
+              setState(() {
+                isLowTime = newBool!;
+              });
+            },
+          ),
+        ],
+      ),
+    ]);
+  }
+
+  void moveToAddIngredientPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => AddIngredientsToMealPage(
+                name: _name,
+              )),
+    );
   }
 
   @override
@@ -99,89 +124,27 @@ class _CreateMealPageState extends State<CreateMealPage> {
                     padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
                     child: TextFormField(
                       controller: addFoodNameController,
-                      decoration: const InputDecoration(
-                          border: OutlineInputBorder(
+                      decoration: InputDecoration(
+                          errorText: validate(addFoodNameController.text),
+                          border: const OutlineInputBorder(
                             borderSide:
                                 BorderSide(width: 3, color: Colors.black),
                           ),
                           hintText: 'Meal Name'),
-                      validator: (text) {
-                        return validate(text);
-                      },
+                      validator: validate,
                       onChanged: (text) => setState(() => _name = text),
                     ),
                   ),
-                  Row(
-                    children: [
-                      Flexible(
-                        flex: 5,
-                        child: TextFormField(
-                          controller: addFoodIngredientController,
-                          decoration: const InputDecoration(
-                              border: OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(width: 3, color: Colors.black),
-                              ),
-                              hintText: 'Ingredient'),
-                        ),
-                      ),
-                      Flexible(
-                        flex: 3,
-                        child: TextFormField(
-                          controller: addFoodQuantityController,
-                          decoration: const InputDecoration(
-                              border: OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(width: 3, color: Colors.black),
-                              ),
-                              hintText: 'Quantity'),
-                        ),
-                      ),
-                      Flexible(
-                          flex: 2,
-                          child: Container(
-                            height: 55,
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Colors.black,
-                                width: 1.0,
-                              ),
-                              borderRadius: BorderRadius.circular(5.0),
-                            ),
-                            child: DropdownButton<String>(
-                              icon: const Icon(Icons.arrow_downward),
-                              value: quantityUnit,
-                              items: quantityUnits
-                                  .map<DropdownMenuItem<String>>(
-                                      (String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                              onChanged: (String? value) {
-                                setState(() {
-                                  quantityUnit = value!;
-                                });
-                              },
-                            ),
-                          )),
-                    ],
-                  ),
+                  extraOptions(),
                   ElevatedButton(
                     style: ButtonStyle(
                         backgroundColor:
                             MaterialStateProperty.all<Color>(Colors.green)),
-                    onPressed: addIngredientToMeal,
+                    onPressed: validate(_name) == null
+                        ? moveToAddIngredientPage
+                        : null,
                     child: const Text(
-                      'Add Ingredient',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: _name.isNotEmpty ? _submit : null,
-                    child: const Text(
-                      'Save',
+                      'Add Ingredients',
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
