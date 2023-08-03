@@ -231,7 +231,24 @@ class _AddIngredientsToMealPageState extends State<AddIngredientsToMealPage> {
                     ),
                   ],
                 ),
-              )
+              ),
+              Expanded(
+                child: ListView.builder(
+                    itemCount: ingredients.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return ListTile(
+                          leading: const Icon(Icons.list),
+                          trailing: IconButton(
+                              icon: const Icon(Icons.delete,
+                                  color: Colors.redAccent),
+                              onPressed: () {
+                                setState(() {
+                                  ingredients.removeAt(index);
+                                });
+                              }),
+                          title: Text(ingredients[index].name));
+                    }),
+              ),
             ])));
   }
 }
