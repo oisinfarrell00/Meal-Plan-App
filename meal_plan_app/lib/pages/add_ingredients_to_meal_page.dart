@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:meal_plan_app/pages/home_page.dart';
-import 'package:meal_plan_app/pages/meal_page.dart';
 
 import '../models/meal.dart';
 
@@ -26,10 +25,43 @@ class _AddIngredientsToMealPageState extends State<AddIngredientsToMealPage> {
   String ingredientsErrorText = '';
 
   @override
+  void initState() {
+    super.initState();
+    addFoodIngredientController.addListener(() {
+      setState(() {});
+    });
+    addFoodQuantityController.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
   void dispose() {
     addFoodIngredientController.dispose();
     addFoodQuantityController.dispose();
     super.dispose();
+  }
+
+  String validateStringInput(value) {
+    final validCharacters =
+        RegExp(r'^[a-zA-Z&%= éÉáÁíÍóÓúÚâÂêÊîÎôÔûÛãÃõÕçÇñÑ ]+$');
+    if (value.toString().replaceAll(" ", "") == "") {
+      return 'Can\'t be empty';
+    }
+    if (!validCharacters.hasMatch(value.toString())) {
+      return 'Can\'t have special characters';
+    }
+
+    return 'valid';
+  }
+
+  String validateDoubleInput(value) {
+    final doubleValue = double.tryParse(value!);
+    if (doubleValue == null) {
+      return 'Invalid number';
+    }
+
+    return 'valid';
   }
 
   void returnToMealPage() {
@@ -40,47 +72,29 @@ class _AddIngredientsToMealPageState extends State<AddIngredientsToMealPage> {
   }
 
   void _submit() {
-    if (_formKey.currentState!.validate()) {
-      var meal = Meal(name: widget.name, ingredients: ingredients);
-      meal.addMealToDatabase(meal);
-      addFoodIngredientController.clear();
-      addFoodQuantityController.clear();
-      ingredients = [];
-      returnToMealPage();
-    }
+    var meal = Meal(name: widget.name, ingredients: ingredients);
+    meal.addMealToDatabase(meal);
+    addFoodIngredientController.clear();
+    addFoodQuantityController.clear();
+    ingredients = [];
+    returnToMealPage();
   }
 
   void cleanUpDialog() {
     Navigator.of(context).pop();
   }
 
-  String? validate(text) {
-    final validCharacters = RegExp(r'^[a-zA-Z&%= ]+$');
-    if (text.toString().replaceAll(" ", "") == "") {
-      return 'Can\'t be empty';
-    }
-    if (!validCharacters.hasMatch(text.toString())) {
-      return 'Can\'t have special characters';
-    }
-
-    return null;
-  }
-
   void addIngredientToMeal() {
-    // Needs validation beyond is empty
-    if (addFoodIngredientController.text.isNotEmpty &&
-        addFoodQuantityController.text.isNotEmpty) {
-      Ingredient ingredientToAdd = Ingredient(
-          name: addFoodIngredientController.text,
-          quantity: double.parse(addFoodQuantityController.text),
-          quantityType: quantityUnit);
-      ingredients.add(ingredientToAdd);
-      setState(() {
-        isIngredientListEmpty = false;
-      });
-      addFoodIngredientController.clear();
-      addFoodQuantityController.clear();
-    }
+    Ingredient ingredientToAdd = Ingredient(
+        name: addFoodIngredientController.text,
+        quantity: double.parse(addFoodQuantityController.text),
+        quantityType: quantityUnit);
+    ingredients.add(ingredientToAdd);
+    setState(() {
+      isIngredientListEmpty = false;
+    });
+    addFoodIngredientController.clear();
+    addFoodQuantityController.clear();
   }
 
   @override
@@ -118,11 +132,24 @@ class _AddIngredientsToMealPageState extends State<AddIngredientsToMealPage> {
                                       BorderSide(width: 3, color: Colors.black),
                                 ),
                                 hintText: 'Ingredient'),
+                            validator: (value) {
+                              final validCharacters = RegExp(
+                                  r'^[a-zA-Z&%= éÉáÁíÍóÓúÚâÂêÊîÎôÔûÛãÃõÕçÇñÑ ]+$');
+                              if (value.toString().replaceAll(" ", "") == "") {
+                                return 'Can\'t be empty';
+                              }
+                              if (!validCharacters.hasMatch(value.toString())) {
+                                return 'Can\'t have special characters';
+                              }
+
+                              return null;
+                            },
                           ),
                         ),
                         Flexible(
                           flex: 3,
                           child: TextFormField(
+                            keyboardType: TextInputType.number,
                             controller: addFoodQuantityController,
                             decoration: const InputDecoration(
                                 border: OutlineInputBorder(
@@ -130,6 +157,13 @@ class _AddIngredientsToMealPageState extends State<AddIngredientsToMealPage> {
                                       BorderSide(width: 3, color: Colors.black),
                                 ),
                                 hintText: 'Quantity'),
+                            validator: (value) {
+                              final doubleValue = double.tryParse(value!);
+                              if (doubleValue == null) {
+                                return 'Invalid number';
+                              }
+                              return null;
+                            },
                           ),
                         ),
                         Flexible(
@@ -165,11 +199,22 @@ class _AddIngredientsToMealPageState extends State<AddIngredientsToMealPage> {
                     ),
                     ElevatedButton(
                       style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all<Color>(Colors.blue)),
-                      onPressed: addIngredientToMeal,
+                          backgroundColor: (validateStringInput(
+                                          addFoodIngredientController.text) ==
+                                      'valid' &&
+                                  validateDoubleInput(
+                                          addFoodQuantityController.text) ==
+                                      'valid')
+                              ? MaterialStateProperty.all<Color>(Colors.blue)
+                              : MaterialStateProperty.all<Color>(Colors.grey)),
+                      onPressed: () {
+                        final isValidInput = _formKey.currentState!.validate();
+                        if (isValidInput) {
+                          addIngredientToMeal();
+                        }
+                      },
                       child: const Text(
-                        'Add Ingredients',
+                        'Add Ingredient',
                         style: TextStyle(color: Colors.white),
                       ),
                     ),

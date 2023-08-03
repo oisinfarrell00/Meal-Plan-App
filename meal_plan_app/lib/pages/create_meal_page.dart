@@ -18,6 +18,14 @@ class _CreateMealPageState extends State<CreateMealPage> {
   bool isLowTime = false;
 
   @override
+  void initState() {
+    super.initState();
+    addFoodNameController.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
   void dispose() {
     addFoodNameController.dispose();
     super.dispose();
@@ -28,16 +36,17 @@ class _CreateMealPageState extends State<CreateMealPage> {
     addFoodNameController.clear();
   }
 
-  String? validate(text) {
-    final validCharacters = RegExp(r'^[a-zA-Z&%= ]+$');
-    if (text.toString().replaceAll(" ", "") == "") {
+  String validateStringInput(value) {
+    final validCharacters =
+        RegExp(r'^[a-zA-Z&%= éÉáÁíÍóÓúÚâÂêÊîÎôÔûÛãÃõÕçÇñÑ ]+$');
+    if (value.toString().replaceAll(" ", "") == "") {
       return 'Can\'t be empty';
     }
-    if (!validCharacters.hasMatch(text.toString())) {
+    if (!validCharacters.hasMatch(value.toString())) {
       return 'Can\'t have special characters';
     }
 
-    return null;
+    return 'valid';
   }
 
   // clean up
@@ -124,25 +133,40 @@ class _CreateMealPageState extends State<CreateMealPage> {
                     padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
                     child: TextFormField(
                       controller: addFoodNameController,
-                      decoration: InputDecoration(
-                          errorText: validate(addFoodNameController.text),
-                          border: const OutlineInputBorder(
+                      decoration: const InputDecoration(
+                          border: OutlineInputBorder(
                             borderSide:
                                 BorderSide(width: 3, color: Colors.black),
                           ),
                           hintText: 'Meal Name'),
-                      validator: validate,
+                      validator: (value) {
+                        final validCharacters = RegExp(r'^[a-zA-Z&%= ]+$');
+                        if (value.toString().replaceAll(" ", "") == "") {
+                          return 'Can\'t be empty';
+                        }
+                        if (!validCharacters.hasMatch(value.toString())) {
+                          return 'Can\'t have special characters';
+                        }
+
+                        return null;
+                      },
                       onChanged: (text) => setState(() => _name = text),
                     ),
                   ),
                   extraOptions(),
                   ElevatedButton(
                     style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.all<Color>(Colors.green)),
-                    onPressed: validate(_name) == null
-                        ? moveToAddIngredientPage
-                        : null,
+                        backgroundColor: validateStringInput(
+                                    addFoodNameController.text) ==
+                                'valid'
+                            ? MaterialStateProperty.all<Color>(Colors.green)
+                            : MaterialStateProperty.all<Color>(Colors.grey)),
+                    onPressed: () {
+                      final isValidName = _formKey.currentState!.validate();
+                      if (isValidName) {
+                        moveToAddIngredientPage();
+                      }
+                    },
                     child: const Text(
                       'Add Ingredients',
                       style: TextStyle(color: Colors.white),
