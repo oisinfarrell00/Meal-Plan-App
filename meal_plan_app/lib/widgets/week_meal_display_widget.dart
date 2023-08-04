@@ -47,9 +47,8 @@ class _MealDisplayWidgetState extends State<MealDisplayWidget> {
                     Flexible(
                       child: Text(
                         widget.breakfast,
-                        maxLines: 1, // Restrict to one line
-                        overflow: TextOverflow
-                            .ellipsis, // Show ellipsis if text overflows
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     const SizedBox(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meal_plan_app/providers/weekly_meal_plan_provider.dart';
-import 'package:meal_plan_app/widgets/meal_display_widget.dart';
+import 'package:meal_plan_app/widgets/week_meal_display_widget.dart';
 import 'package:provider/provider.dart';
 import '../assets/constants.dart' as constants;
 
@@ -28,7 +28,7 @@ class WeeklyMealPlanDisplay extends StatelessWidget {
     final weeklyMealProvider = Provider.of<MealSelectionsProvider>(context);
 
     if (!weeklyMealProvider.dataFetched) {
-      return const CircularProgressIndicator(); // Show a loading indicator while fetching data
+      return const Center(child: CircularProgressIndicator());
     }
 
     return buildWeeklyMealPlan(context);
