@@ -15,6 +15,12 @@ class _DailyMealPlanDisplayState extends State<DailyMealPlanDisplay> {
   var displayIndex = 0;
   var today = DateFormat('EEEE').format(DateTime.now());
 
+  static const heading = TextStyle(
+      fontFamily: 'Montserrat',
+      color: Colors.black,
+      fontSize: 20,
+      fontWeight: FontWeight.w600);
+
   @override
   void initState() {
     super.initState();
@@ -40,7 +46,7 @@ class _DailyMealPlanDisplayState extends State<DailyMealPlanDisplay> {
       child: Center(
         child: Container(
           width: MediaQuery.of(context).size.width * 0.9,
-          padding: const EdgeInsets.all(2),
+          padding: const EdgeInsets.only(left: 20, right: 20),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12.0),
             border: Border.all(),
@@ -55,15 +61,16 @@ class _DailyMealPlanDisplayState extends State<DailyMealPlanDisplay> {
             ],
           ),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
+              Container(
+                decoration: const BoxDecoration(
+                    border: Border(bottom: BorderSide(color: Colors.black))),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     IconButton(
                         onPressed: () {
-                          debugPrint("previous day");
                           setState(() {
                             displayIndex = (displayIndex - 1) % 7;
                           });
@@ -75,7 +82,6 @@ class _DailyMealPlanDisplayState extends State<DailyMealPlanDisplay> {
                           setState(() {
                             displayIndex = (displayIndex + 1) % 7;
                           });
-                          debugPrint("day: $displayIndex");
                         },
                         icon: const Icon(Icons.arrow_forward_ios)),
                   ],
@@ -83,12 +89,32 @@ class _DailyMealPlanDisplayState extends State<DailyMealPlanDisplay> {
               ),
               Expanded(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Breakfast: $breakfast"),
-                    Text("Lunch: $lunch"),
-                    Text("Dinner: $dinner"),
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    const Text(
+                      "Breakfast",
+                      style: heading,
+                    ),
+                    Text(breakfast),
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    const Text(
+                      "Lunch",
+                      style: heading,
+                    ),
+                    Text(lunch),
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    const Text(
+                      "Dinner",
+                      style: heading,
+                    ),
+                    Text(dinner),
                   ],
                 ),
               ),
