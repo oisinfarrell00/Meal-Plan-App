@@ -20,3 +20,9 @@ const TextStyle DAY_HEADER_TEXT_STYLE =
 
 const TextStyle MEAL_HEADER_TEXT_STYLE =
     TextStyle(fontWeight: FontWeight.bold, fontSize: 20);
+
+const TextStyle heading = TextStyle(
+    fontFamily: 'Montserrat',
+    color: Colors.black,
+    fontSize: 20,
+    fontWeight: FontWeight.w600);

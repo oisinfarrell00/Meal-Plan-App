@@ -23,25 +23,28 @@ class _MealDropDownState extends State<MealDropDown> {
     return Consumer<MealSelectionsProvider>(
       builder: (context, mealSelectionsProvider, _) {
         return Container(
-            width: 350,
-            height: 50,
-            decoration: BoxDecoration(border: Border.all(color: Colors.black)),
-            child: DropdownButton(
-              value: selectedMeals[widget.day][widget.meal],
-              icon: const Icon(Icons.keyboard_arrow_down),
-              items: widget.items.map((String item) {
-                return DropdownMenuItem(
-                  value: item,
-                  child: Text(item),
-                );
-              }).toList(),
-              onChanged: (String? newItem) {
-                setState(() {
-                  // This is required to show the display value on the dropdown menu and update the meal plan. Not best
-                  // practice but will do for now!
-                });
-                updateShoppingList(newItem!);
-              },
+            decoration: BoxDecoration(
+                border: Border.all(color: Colors.black),
+                borderRadius: BorderRadius.circular(10)),
+            child: Padding(
+              padding: const EdgeInsets.only(left: 2.0),
+              child: DropdownButton(
+                value: selectedMeals[widget.day][widget.meal],
+                icon: const Icon(Icons.keyboard_arrow_down),
+                items: widget.items.map((String item) {
+                  return DropdownMenuItem(
+                    value: item,
+                    child: Text(item),
+                  );
+                }).toList(),
+                onChanged: (String? newItem) {
+                  setState(() {
+                    // This is required to show the display value on the dropdown menu and update the meal plan. Not best
+                    // practice but will do for now!
+                  });
+                  updateShoppingList(newItem!);
+                },
+              ),
             ));
       },
     );

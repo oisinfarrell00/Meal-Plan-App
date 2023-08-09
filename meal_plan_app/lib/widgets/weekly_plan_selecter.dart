@@ -17,14 +17,14 @@ class _WeeklyMealPlanSelecterState extends State<WeeklyMealPlanSelecter> {
     int dayIndex = getDayIndex(day);
     return Expanded(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
+          const SizedBox(
+            height: 30,
+          ),
           mealTile("Breakfast", dayIndex, constants.breakfast),
           mealTile("Lunch", dayIndex, constants.lunch),
           mealTile("Dinner", dayIndex, constants.dinner),
-          const SizedBox(
-            height: 30,
-          )
         ],
       ),
     );
@@ -32,46 +32,48 @@ class _WeeklyMealPlanSelecterState extends State<WeeklyMealPlanSelecter> {
 
   // This needs to posses the ability  to hold multiple meals.
   Widget mealTile(String meal, int dayIndex, int mealIndex) {
-    return Column(
-      children: [
-        Container(
-          width: constants.CONTENT_WIDTH,
-          height: constants.MEAL_BOX_HEIGHT,
-          decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 143, 197, 220),
-            border: Border.all(
-              color: Colors.black,
-              width: 2.0,
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: constants.CONTENT_WIDTH,
+            height: constants.MEAL_BOX_HEIGHT,
+            decoration: const BoxDecoration(
+                border: Border(bottom: BorderSide(color: Colors.black))),
+            child: Text(
+              meal,
+              style: constants.heading,
             ),
           ),
-          child: Text(
-            meal,
-            style: constants.MEAL_HEADER_TEXT_STYLE,
+          const SizedBox(
+            height: 5,
           ),
-        ),
-        StreamBuilder(
-            stream: FirebaseFirestore.instance.collection('Meals').snapshots(),
-            builder: (BuildContext context,
-                AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
-              if (!snapshot.hasData) {
-                return const CircularProgressIndicator();
-              } else {
-                final meals = snapshot.data!.docs;
+          StreamBuilder(
+              stream:
+                  FirebaseFirestore.instance.collection('Meals').snapshots(),
+              builder: (BuildContext context,
+                  AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
+                if (!snapshot.hasData) {
+                  return const CircularProgressIndicator();
+                } else {
+                  final meals = snapshot.data!.docs;
 
-                var mealList = ['-'];
-                for (var meal in meals) {
-                  final data = meal.data();
-                  final mealName = data['name'] as String;
-                  mealList.add(mealName);
+                  var mealList = ['-'];
+                  for (var meal in meals) {
+                    final data = meal.data();
+                    final mealName = data['name'] as String;
+                    mealList.add(mealName);
+                  }
+                  return MealDropDown(
+                    items: mealList,
+                    day: dayIndex,
+                    meal: mealIndex,
+                  );
                 }
-                return MealDropDown(
-                  items: mealList,
-                  day: dayIndex,
-                  meal: mealIndex,
-                );
-              }
-            }),
-      ],
+              }),
+        ],
+      ),
     );
   }
 
@@ -140,10 +142,10 @@ class _WeeklyMealPlanSelecterState extends State<WeeklyMealPlanSelecter> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.only(top: 20.0, bottom: 30.0),
+        padding: const EdgeInsets.only(top: 10.0, bottom: 20.0),
         child: Center(
           child: Container(
-            width: MediaQuery.of(context).size.width * 0.9,
+            width: MediaQuery.of(context).size.width * 0.95,
             padding: const EdgeInsets.only(left: 20, right: 20),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12.0),
@@ -160,26 +162,31 @@ class _WeeklyMealPlanSelecterState extends State<WeeklyMealPlanSelecter> {
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                        onPressed: () {
-                          setState(() {
-                            displayIndex = (displayIndex - 1) % 7;
-                          });
-                        },
-                        icon: const Icon(Icons.arrow_back_ios)),
-                    Text(getDayString(displayIndex)),
-                    IconButton(
-                        onPressed: () {
-                          setState(() {
-                            displayIndex = (displayIndex + 1) % 7;
-                          });
-                        },
-                        icon: const Icon(Icons.arrow_forward_ios)),
-                  ],
+                Container(
+                  decoration: const BoxDecoration(
+                      border: Border(bottom: BorderSide(color: Colors.black))),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                          onPressed: () {
+                            setState(() {
+                              displayIndex = (displayIndex - 1) % 7;
+                            });
+                          },
+                          icon: const Icon(Icons.arrow_back_ios)),
+                      Text(getDayString(displayIndex)),
+                      IconButton(
+                          onPressed: () {
+                            setState(() {
+                              displayIndex = (displayIndex + 1) % 7;
+                            });
+                          },
+                          icon: const Icon(Icons.arrow_forward_ios)),
+                    ],
+                  ),
                 ),
                 dayTile(getDayString(displayIndex)),
               ],
