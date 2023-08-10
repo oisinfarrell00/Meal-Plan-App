@@ -19,9 +19,6 @@ class _WeeklyMealPlanSelecterState extends State<WeeklyMealPlanSelecter> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          const SizedBox(
-            height: 30,
-          ),
           mealTile("Breakfast", dayIndex, constants.breakfast),
           mealTile("Lunch", dayIndex, constants.lunch),
           mealTile("Dinner", dayIndex, constants.dinner),
@@ -33,47 +30,28 @@ class _WeeklyMealPlanSelecterState extends State<WeeklyMealPlanSelecter> {
   // This needs to posses the ability  to hold multiple meals.
   Widget mealTile(String meal, int dayIndex, int mealIndex) {
     return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: constants.CONTENT_WIDTH,
-            height: constants.MEAL_BOX_HEIGHT,
-            decoration: const BoxDecoration(
-                border: Border(bottom: BorderSide(color: Colors.black))),
-            child: Text(
-              meal,
-              style: constants.heading,
-            ),
-          ),
-          const SizedBox(
-            height: 5,
-          ),
-          StreamBuilder(
-              stream:
-                  FirebaseFirestore.instance.collection('Meals').snapshots(),
-              builder: (BuildContext context,
-                  AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
-                if (!snapshot.hasData) {
-                  return const CircularProgressIndicator();
-                } else {
-                  final meals = snapshot.data!.docs;
+      child: StreamBuilder(
+          stream: FirebaseFirestore.instance.collection('Meals').snapshots(),
+          builder: (BuildContext context,
+              AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
+            if (!snapshot.hasData) {
+              return const CircularProgressIndicator();
+            } else {
+              final meals = snapshot.data!.docs;
 
-                  var mealList = ['-'];
-                  for (var meal in meals) {
-                    final data = meal.data();
-                    final mealName = data['name'] as String;
-                    mealList.add(mealName);
-                  }
-                  return MealDropDown(
-                    items: mealList,
-                    day: dayIndex,
-                    meal: mealIndex,
-                  );
-                }
-              }),
-        ],
-      ),
+              List<String> mealList = [];
+              for (var meal in meals) {
+                final data = meal.data();
+                final mealName = data['name'] as String;
+                mealList.add(mealName);
+              }
+              return MealDropDown(
+                items: mealList,
+                day: dayIndex,
+                meal: mealIndex,
+              );
+            }
+          }),
     );
   }
 

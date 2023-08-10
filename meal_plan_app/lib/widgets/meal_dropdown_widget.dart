@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:meal_plan_app/providers/weekly_meal_plan_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:provider/provider.dart';
 
 // ignore: must_be_immutable
@@ -16,36 +17,26 @@ class MealDropDown extends StatefulWidget {
 }
 
 class _MealDropDownState extends State<MealDropDown> {
+  var meals = [];
   @override
   Widget build(BuildContext context) {
     var selectedMeals = context.watch<MealSelectionsProvider>().weeklyMeals;
-    debugPrint("Selected meals: $selectedMeals");
+    //debugPrint("Selected meals: $selectedMeals");
     return Consumer<MealSelectionsProvider>(
       builder: (context, mealSelectionsProvider, _) {
-        return Container(
-            decoration: BoxDecoration(
-                border: Border.all(color: Colors.black),
-                borderRadius: BorderRadius.circular(10)),
-            child: Padding(
-              padding: const EdgeInsets.only(left: 2.0),
-              child: DropdownButton(
-                value: selectedMeals[widget.day][widget.meal],
-                icon: const Icon(Icons.keyboard_arrow_down),
-                items: widget.items.map((String item) {
-                  return DropdownMenuItem(
-                    value: item,
-                    child: Text(item),
-                  );
-                }).toList(),
-                onChanged: (String? newItem) {
-                  setState(() {
-                    // This is required to show the display value on the dropdown menu and update the meal plan. Not best
-                    // practice but will do for now!
-                  });
-                  updateShoppingList(newItem!);
-                },
-              ),
-            ));
+        return SingleChildScrollView(
+          child: MultiSelectDialogField(
+            buttonText: Text("Select ${getMealNameByInt(widget.meal)}"),
+            items: widget.items
+                .map((String item) => MultiSelectItem(item, item))
+                .toList(),
+            listType: MultiSelectListType.CHIP,
+            initialValue: [selectedMeals[widget.day][widget.meal]],
+            onConfirm: (values) {
+              meals = values;
+            },
+          ),
+        );
       },
     );
   }
@@ -70,7 +61,6 @@ class _MealDropDownState extends State<MealDropDown> {
             for (int index = 0; index < ingredients.length; index++) {
               shoppingList.add(ingredients[index]['name']);
             }
-            //shoppingList.addAll(ingredients);
           } else {
             debugPrint('No ingredients found in the document.');
           }
@@ -121,5 +111,15 @@ class _MealDropDownState extends State<MealDropDown> {
 
     List<dynamic> resultList = uniqueItems.toList();
     return resultList;
+  }
+
+  String getMealNameByInt(int mealIndex) {
+    if (mealIndex == 0) {
+      return "Breakfast";
+    } else if (mealIndex == 1) {
+      return "Lunch";
+    } else {
+      return "Dinner";
+    }
   }
 }
