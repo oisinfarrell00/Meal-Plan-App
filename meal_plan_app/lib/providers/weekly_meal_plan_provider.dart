@@ -5,14 +5,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class MealSelectionsProvider extends ChangeNotifier {
   bool dataFetched = false;
 
-  List<List<String>> weeklyMeals = [
-    ['-', '-', '-'], // Monday
-    ['-', '-', '-'], // Tuesday
-    ['-', '-', '-'], // Wednesday
-    ['-', '-', '-'], // Thursday
-    ['-', '-', '-'], // Friday
-    ['-', '-', '-'], // Saturday
-    ['-', '-', '-'], // Sunday
+  List<List<List<String>>> weeklyMeals = [
+    [[], [], []],
+    [[], [], []],
+    [[], [], []],
+    [[], [], []],
+    [[], [], []],
+    [[], [], []],
+    [[], [], []]
   ];
 
   MealSelectionsProvider() {
@@ -29,8 +29,10 @@ class MealSelectionsProvider extends ChangeNotifier {
         final String documentId = document.id;
         final Map<String, dynamic> data = document.data();
 
-        final List<String> meals = _deserializeMeals(data);
+        final List<List<String>> meals = _deserializeMeals(data);
         final int dayIndex = _getDayIndexFromDocumentId(documentId);
+
+        debugPrint(meals.toString());
 
         if (dayIndex != -1) {
           weeklyMeals[dayIndex] = meals;
@@ -45,13 +47,13 @@ class MealSelectionsProvider extends ChangeNotifier {
     }
   }
 
-  void uploadWeeklyMealsToFirestore(List<List<String>> weeklyMeals) async {
+  void uploadWeeklyMealsToFirestore() async {
     try {
       final CollectionReference<Map<String, dynamic>> collectionRef =
           FirebaseFirestore.instance.collection('weekly_plan');
 
       for (int i = 0; i < weeklyMeals.length; i++) {
-        final List<String> meals = weeklyMeals[i];
+        final List<List<String>> meals = weeklyMeals[i];
         final String day = _getDayFromIndex(i);
 
         final Map<String, dynamic> data = {
@@ -90,30 +92,38 @@ class MealSelectionsProvider extends ChangeNotifier {
     }
   }
 
-  void updateMealSelection(int day, int meal, newValue) {
-    weeklyMeals[day][meal] = newValue;
-    uploadWeeklyMealsToFirestore(weeklyMeals);
+  void updateMealSelection(int day, int meal, List<String> newDishes) {
+    weeklyMeals[day][meal] = newDishes;
   }
 
-  List<String> _deserializeMeals(Map<String, dynamic> data) {
-    final List<String> meals = [];
+  List<String> castDynamicListToStringList(
+      Map<String, dynamic> data, String meal) {
+    List<String> dynamicListAsStringList = [];
+    for (int i = 0; i < data[meal].length; i++) {
+      dynamicListAsStringList.add(data[meal][i].toString());
+    }
+    return dynamicListAsStringList;
+  }
+
+  List<List<String>> _deserializeMeals(Map<String, dynamic> data) {
+    final List<List<String>> meals = [];
 
     if (data.containsKey('breakfast')) {
-      meals.add(data['breakfast'] as String);
+      meals.add(castDynamicListToStringList(data, 'breakfast'));
     } else {
-      meals.add('');
+      meals.add([]);
     }
 
     if (data.containsKey('lunch')) {
-      meals.add(data['lunch'] as String);
+      meals.add(castDynamicListToStringList(data, 'lunch'));
     } else {
-      meals.add('');
+      meals.add([]);
     }
 
     if (data.containsKey('dinner')) {
-      meals.add(data['dinner'] as String);
+      meals.add(castDynamicListToStringList(data, 'dinner'));
     } else {
-      meals.add('');
+      meals.add([]);
     }
 
     return meals;

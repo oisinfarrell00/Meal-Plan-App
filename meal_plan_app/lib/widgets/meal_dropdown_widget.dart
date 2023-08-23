@@ -21,7 +21,7 @@ class _MealDropDownState extends State<MealDropDown> {
   @override
   Widget build(BuildContext context) {
     var selectedMeals = context.watch<MealSelectionsProvider>().weeklyMeals;
-    //debugPrint("Selected meals: $selectedMeals");
+    debugPrint("Selected meals: $selectedMeals");
     return Consumer<MealSelectionsProvider>(
       builder: (context, mealSelectionsProvider, _) {
         return SingleChildScrollView(
@@ -31,9 +31,12 @@ class _MealDropDownState extends State<MealDropDown> {
                 .map((String item) => MultiSelectItem(item, item))
                 .toList(),
             listType: MultiSelectListType.CHIP,
-            initialValue: [selectedMeals[widget.day][widget.meal]],
+            initialValue: selectedMeals[widget.day][widget.meal],
             onConfirm: (values) {
-              meals = values;
+              List<String> newValues =
+                  values.map((value) => value.toString()).toList();
+              mealSelectionsProvider.updateMealSelection(
+                  widget.day, widget.meal, newValues);
             },
           ),
         );
@@ -50,30 +53,35 @@ class _MealDropDownState extends State<MealDropDown> {
     var shoppingList = [];
     for (int dayIndex = 0; dayIndex < 7; dayIndex++) {
       for (int mealIndex = 0; mealIndex < 3; mealIndex++) {
-        var mealDocumentReference = mealsCollectionReference
-            .doc(provider.weeklyMeals[dayIndex][mealIndex]);
-        var mealDocumentSnapshot = await mealDocumentReference.get();
-        if (mealDocumentSnapshot.exists) {
-          var mealData = mealDocumentSnapshot
-              .data(); // this could be good for getting all info about the meals.
-          if (mealData != null && mealData.containsKey('ingredients')) {
-            var ingredients = mealData['ingredients'];
-            for (int index = 0; index < ingredients.length; index++) {
-              shoppingList.add(ingredients[index]['name']);
+        for (int dishIndex = 0;
+            dishIndex < provider.weeklyMeals[dayIndex][mealIndex].length;
+            dishIndex++) {
+          var mealDocumentReference = mealsCollectionReference
+              .doc(provider.weeklyMeals[dayIndex][mealIndex][dishIndex]);
+          var mealDocumentSnapshot = await mealDocumentReference.get();
+          if (mealDocumentSnapshot.exists) {
+            var mealData = mealDocumentSnapshot
+                .data(); // this could be good for getting all info about the meals.
+            if (mealData != null && mealData.containsKey('ingredients')) {
+              var ingredients = mealData['ingredients'];
+              for (int index = 0; index < ingredients.length; index++) {
+                shoppingList.add(ingredients[index]['name']);
+              }
+            } else {
+              debugPrint('No ingredients found in the document.');
             }
-          } else {
-            debugPrint('No ingredients found in the document.');
           }
         }
       }
+      return shoppingList;
     }
-    return shoppingList;
   }
 
-  Future<void> updateShoppingList(String newItem) async {
+  Future<void> updateShoppingList(List<String> newItems) async {
     final provider =
         Provider.of<MealSelectionsProvider>(context, listen: false);
-    provider.updateMealSelection(widget.day, widget.meal, newItem);
+    provider.updateMealSelection(widget.day, widget.meal, newItems);
+    provider.uploadWeeklyMealsToFirestore();
 
     final shoppingListCollectionReference =
         FirebaseFirestore.instance.collection('weekly_plan');

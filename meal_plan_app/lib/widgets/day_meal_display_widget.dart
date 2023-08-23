@@ -12,7 +12,7 @@ class DailyMealPlanDisplay extends StatefulWidget {
 }
 
 class _DailyMealPlanDisplayState extends State<DailyMealPlanDisplay> {
-  var displayIndex = 0;
+  int displayIndex = 0;
   var today = DateFormat('EEEE').format(DateTime.now());
 
   static const heading = TextStyle(
@@ -32,10 +32,11 @@ class _DailyMealPlanDisplayState extends State<DailyMealPlanDisplay> {
     final weeklyMealProvider =
         Provider.of<MealSelectionsProvider>(context, listen: false);
 
-    var todayMeals = weeklyMealProvider.weeklyMeals[displayIndex];
-    String breakfast = todayMeals[constants.breakfast];
-    String lunch = todayMeals[constants.lunch];
-    String dinner = todayMeals[constants.dinner];
+    List<List<String>> todayMeals =
+        weeklyMealProvider.weeklyMeals[displayIndex];
+    List<String> breakfast = todayMeals[constants.breakfast];
+    List<String> lunch = todayMeals[constants.lunch];
+    List<String> dinner = todayMeals[constants.dinner];
 
     if (!weeklyMealProvider.dataFetched) {
       return const Center(child: CircularProgressIndicator());
@@ -98,7 +99,7 @@ class _DailyMealPlanDisplayState extends State<DailyMealPlanDisplay> {
                       "Breakfast",
                       style: heading,
                     ),
-                    Text(breakfast),
+                    getMealDisplayWidgets(breakfast),
                     const SizedBox(
                       height: 30,
                     ),
@@ -106,7 +107,7 @@ class _DailyMealPlanDisplayState extends State<DailyMealPlanDisplay> {
                       "Lunch",
                       style: heading,
                     ),
-                    Text(lunch),
+                    getMealDisplayWidgets(lunch),
                     const SizedBox(
                       height: 30,
                     ),
@@ -114,7 +115,7 @@ class _DailyMealPlanDisplayState extends State<DailyMealPlanDisplay> {
                       "Dinner",
                       style: heading,
                     ),
-                    Text(dinner),
+                    getMealDisplayWidgets(dinner),
                   ],
                 ),
               ),
@@ -161,5 +162,13 @@ class _DailyMealPlanDisplayState extends State<DailyMealPlanDisplay> {
       default:
         return 'Sunday';
     }
+  }
+
+  Widget getMealDisplayWidgets(List<String> strings) {
+    List<Widget> list = <Widget>[];
+    for (var i = 0; i < strings.length; i++) {
+      list.add(Text(strings[i]));
+    }
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: list);
   }
 }

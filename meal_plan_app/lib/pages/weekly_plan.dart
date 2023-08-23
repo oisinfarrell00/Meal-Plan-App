@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:meal_plan_app/widgets/day_meal_display_widget.dart';
 import 'package:meal_plan_app/widgets/weekly_plan_display.dart';
 import 'package:meal_plan_app/widgets/weekly_plan_selecter.dart';
+import 'package:provider/provider.dart';
+
+import '../providers/weekly_meal_plan_provider.dart';
 
 class WeeklyMealPlan extends StatefulWidget {
   const WeeklyMealPlan({super.key});
@@ -16,6 +19,8 @@ class _WeeklyMealPlanState extends State<WeeklyMealPlan> {
 
   @override
   Widget build(BuildContext context) {
+    final weeklyMealProvider =
+        Provider.of<MealSelectionsProvider>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
         actions: <Widget>[
@@ -35,6 +40,9 @@ class _WeeklyMealPlanState extends State<WeeklyMealPlan> {
                 ? const Icon(Icons.done_rounded)
                 : const Icon(Icons.edit_note_rounded),
             onPressed: () {
+              if (inEditMode) {
+                weeklyMealProvider.uploadWeeklyMealsToFirestore();
+              }
               setState(() {
                 inEditMode = !inEditMode;
               });

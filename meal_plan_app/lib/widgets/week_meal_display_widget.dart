@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 // ignore: must_be_immutable
 class MealDisplayWidget extends StatefulWidget {
   String displayName;
-  String breakfast;
-  String lunch;
-  String dinner;
+  List<String> breakfast;
+  List<String> lunch;
+  List<String> dinner;
   MealDisplayWidget(
       {super.key,
       required this.displayName,
@@ -46,7 +46,9 @@ class _MealDisplayWidgetState extends State<MealDisplayWidget> {
                   children: [
                     Flexible(
                       child: Text(
-                        widget.breakfast,
+                        // change this so that it displays all meals but for now just leave it as the weekly display might be
+                        // axed all together
+                        widget.breakfast[0],
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -56,7 +58,7 @@ class _MealDisplayWidgetState extends State<MealDisplayWidget> {
                     ),
                     Flexible(
                       child: Text(
-                        widget.lunch,
+                        widget.lunch[0],
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -66,7 +68,7 @@ class _MealDisplayWidgetState extends State<MealDisplayWidget> {
                     ),
                     Flexible(
                       child: Text(
-                        widget.dinner,
+                        widget.dinner[0],
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
