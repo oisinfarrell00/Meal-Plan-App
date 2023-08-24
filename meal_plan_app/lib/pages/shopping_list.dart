@@ -14,6 +14,30 @@ class _ShoppingListState extends State<ShoppingList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("Shopping List"),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton.icon(
+              style: ButtonStyle(
+                  foregroundColor:
+                      MaterialStateProperty.all<Color>(Colors.white),
+                  backgroundColor: MaterialStateProperty.all<Color>(
+                      const Color.fromARGB(99, 64, 95, 220)),
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18.0),
+                          side: const BorderSide(color: Colors.white)))),
+              onPressed: () {
+                _showAddItemDialog();
+              },
+              icon: const Icon(Icons.add),
+              label: const Text("Add Item"),
+            ),
+          )
+        ],
+      ),
       body: StreamBuilder(
           stream: FirebaseFirestore.instance
               .collection('weekly_plan')
@@ -29,26 +53,21 @@ class _ShoppingListState extends State<ShoppingList> {
               return ListView.builder(
                   itemCount: shoppingList.length,
                   itemBuilder: (BuildContext context, int index) {
-                    return ListTile(
-                        leading: const Icon(Icons.list),
-                        trailing: IconButton(
-                          icon: const Icon(
-                            Icons.delete,
-                            color: Color.fromARGB(255, 235, 94, 84),
+                    return Card(
+                      child: ListTile(
+                          leading: const Icon(Icons.list),
+                          trailing: IconButton(
+                            icon: const Icon(
+                              Icons.delete,
+                              color: Color.fromARGB(255, 235, 94, 84),
+                            ),
+                            onPressed: () => removeItemFromShoppingList(index),
                           ),
-                          onPressed: () => removeItemFromShoppingList(index),
-                        ),
-                        title: Text(shoppingList[index]));
+                          title: Text(shoppingList[index])),
+                    );
                   });
             }
           }),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _showAddItemDialog();
-        },
-        tooltip: 'Add Item',
-        child: const Icon(Icons.add),
-      ),
     );
   }
 
