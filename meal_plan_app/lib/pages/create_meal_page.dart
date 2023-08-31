@@ -109,20 +109,13 @@ class _CreateMealPageState extends State<CreateMealPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("Create Meal"),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
           children: [
-            Row(
-              children: [
-                IconButton(
-                    onPressed: () {
-                      cleanUpDialog();
-                    },
-                    icon: const Icon(Icons.arrow_back)),
-                const Text("Meal Page"),
-              ],
-            ),
             Form(
               key: _formKey,
               child: Column(

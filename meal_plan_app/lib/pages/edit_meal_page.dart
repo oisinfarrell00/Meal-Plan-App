@@ -1,31 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:meal_plan_app/pages/home_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../models/meal.dart';
 
-class AddIngredientsToMealPage extends StatefulWidget {
-  const AddIngredientsToMealPage({super.key, required this.name});
+class EditMealPage extends StatefulWidget {
+  const EditMealPage({super.key, required this.name});
 
   final String name;
 
   @override
-  State<AddIngredientsToMealPage> createState() =>
-      _AddIngredientsToMealPageState();
+  State<EditMealPage> createState() => _EditMealPageState();
 }
 
-class _AddIngredientsToMealPageState extends State<AddIngredientsToMealPage> {
+class _EditMealPageState extends State<EditMealPage> {
   final addFoodIngredientController = TextEditingController();
   final addFoodQuantityController = TextEditingController();
+
+  String ingredientsErrorText = '';
+
   String quantityUnit = 'g';
   List<String> quantityUnits = ['ml', 'kg', 'piece', 'mg', 'g'];
 
-  var ingredients = <Ingredient>[];
+  List<Ingredient> ingredients = <Ingredient>[];
   bool isIngredientListEmpty = true;
   final _formKey = GlobalKey<FormState>();
 
+  final db = FirebaseFirestore.instance;
+
+  @override
   @override
   void initState() {
     super.initState();
+    fetchMealIngredients(widget.name).then((fetchedIngredients) {
+      setState(() {
+        ingredients.addAll(fetchedIngredients);
+        isIngredientListEmpty = ingredients.isEmpty;
+      });
+    });
+
     addFoodIngredientController.addListener(() {
       setState(() {});
     });
@@ -38,7 +51,33 @@ class _AddIngredientsToMealPageState extends State<AddIngredientsToMealPage> {
   void dispose() {
     addFoodIngredientController.dispose();
     addFoodQuantityController.dispose();
+
     super.dispose();
+  }
+
+  Future<List<Ingredient>> fetchMealIngredients(String mealName) async {
+    List<Ingredient> ingredientsToReturn = [];
+    final docRef = db.collection("Meals").doc(mealName);
+
+    final doc = await docRef.get();
+    final data = doc.data() as Map<String, dynamic>;
+    List<dynamic> mealIngredientsRawData = data['ingredients'];
+
+    for (int index = 0; index < mealIngredientsRawData.length; index++) {
+      String ingredientName = mealIngredientsRawData[index]['name'];
+      double ingredientQuantity = mealIngredientsRawData[index]['quantity'];
+      String ingredientQuantityType =
+          mealIngredientsRawData[index]['quantityType'];
+
+      Ingredient ingredient = Ingredient(
+        name: ingredientName,
+        quantity: ingredientQuantity,
+        quantityType: ingredientQuantityType,
+      );
+      ingredientsToReturn.add(ingredient);
+    }
+
+    return ingredientsToReturn;
   }
 
   String validateStringInput(value) {
@@ -100,7 +139,7 @@ class _AddIngredientsToMealPageState extends State<AddIngredientsToMealPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("Add Ingredients to ${widget.name}"),
+          title: Text("Edit ${widget.name}"),
         ),
         body: Padding(
             padding: const EdgeInsets.all(12.0),
@@ -224,24 +263,26 @@ class _AddIngredientsToMealPageState extends State<AddIngredientsToMealPage> {
                 ),
               ),
               Expanded(
-                child: ListView.builder(
-                    itemCount: ingredients.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return Card(
-                        child: ListTile(
-                            leading: const Icon(Icons.list),
-                            trailing: IconButton(
-                                icon: const Icon(Icons.delete,
-                                    color: Colors.redAccent),
+                  child: ListView.builder(
+                      itemCount: ingredients.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return Card(
+                          child: ListTile(
+                              leading: const Icon(Icons.list),
+                              trailing: IconButton(
+                                icon: const Icon(
+                                  Icons.delete,
+                                  color: Color.fromARGB(255, 235, 94, 84),
+                                ),
                                 onPressed: () {
                                   setState(() {
                                     ingredients.removeAt(index);
                                   });
-                                }),
-                            title: Text(ingredients[index].name)),
-                      );
-                    }),
-              ),
+                                },
+                              ),
+                              title: Text(ingredients[index].name)),
+                        );
+                      })),
             ])));
   }
 }

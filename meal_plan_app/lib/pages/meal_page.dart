@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:meal_plan_app/models/meal.dart';
 import 'package:meal_plan_app/pages/create_meal_page.dart';
-import '../assets/constants.dart' as constants;
+import 'package:meal_plan_app/pages/edit_meal_page.dart';
 
 class MealPage extends StatefulWidget {
   const MealPage({super.key});
@@ -16,6 +16,16 @@ class _MealPageState extends State<MealPage> {
 
   @override
   Widget build(BuildContext context) {
+    void moveEditMealPage(String mealName) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => EditMealPage(
+                  name: mealName,
+                )),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("My Meals"),
@@ -91,7 +101,9 @@ class _MealPageState extends State<MealPage> {
                                       Icons.edit,
                                       color: Color.fromRGBO(50, 220, 50, 150),
                                     ),
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      moveEditMealPage(mealList[index]['name']);
+                                    },
                                   ),
                                 ],
                               ),
