@@ -48,7 +48,7 @@ class _MealDisplayWidgetState extends State<MealDisplayWidget> {
                       child: Text(
                         // change this so that it displays all meals but for now just leave it as the weekly display might be
                         // axed all together
-                        widget.breakfast[0],
+                        widget.breakfast.isEmpty ? "-" : widget.breakfast[0],
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -58,7 +58,7 @@ class _MealDisplayWidgetState extends State<MealDisplayWidget> {
                     ),
                     Flexible(
                       child: Text(
-                        widget.lunch[0],
+                        widget.lunch.isEmpty ? "-" : widget.lunch[0],
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -68,7 +68,7 @@ class _MealDisplayWidgetState extends State<MealDisplayWidget> {
                     ),
                     Flexible(
                       child: Text(
-                        widget.dinner[0],
+                        widget.dinner.isEmpty ? "-" : widget.dinner[0],
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),

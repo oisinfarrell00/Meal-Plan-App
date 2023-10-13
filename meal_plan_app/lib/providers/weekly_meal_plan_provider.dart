@@ -32,8 +32,6 @@ class MealSelectionsProvider extends ChangeNotifier {
         final List<List<String>> meals = _deserializeMeals(data);
         final int dayIndex = _getDayIndexFromDocumentId(documentId);
 
-        debugPrint(meals.toString());
-
         if (dayIndex != -1) {
           weeklyMeals[dayIndex] = meals;
         }

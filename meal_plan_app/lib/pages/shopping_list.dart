@@ -48,7 +48,6 @@ class _ShoppingListState extends State<ShoppingList> {
               return const CircularProgressIndicator();
             } else {
               shoppingList = snapshot.data['list'];
-              debugPrint(shoppingList.toString());
 
               return ListView.builder(
                   itemCount: shoppingList.length,
