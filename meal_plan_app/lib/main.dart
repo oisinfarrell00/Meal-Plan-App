@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:meal_plan_app/pages/home_page.dart';
+import 'package:meal_plan_app/models/shopping_list_model.dart';
 import 'package:meal_plan_app/providers/weekly_meal_plan_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -14,7 +15,6 @@ Future main() async {
         ChangeNotifierProvider(
           create: (_) => MealSelectionsProvider(),
         ),
-        // Add other providers here if needed
       ],
       child: const MyApp(),
     ),

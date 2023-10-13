@@ -16,6 +16,7 @@ class MealSelectionsProvider extends ChangeNotifier {
   ];
 
   MealSelectionsProvider() {
+    debugPrint("Ill do it for the other ");
     _fetchMealPlanFromFirestore();
   }
 

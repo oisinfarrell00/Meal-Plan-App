@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:meal_plan_app/models/shopping_list_model.dart';
+
+import '../models/meal.dart';
 
 class ShoppingList extends StatefulWidget {
   const ShoppingList({super.key});
@@ -9,8 +12,10 @@ class ShoppingList extends StatefulWidget {
 }
 
 class _ShoppingListState extends State<ShoppingList> {
+  final ShoppingListModel shoppingListModel =
+      ShoppingListModel(extras: [], shoppingList: []);
   final TextEditingController _textEditingController = TextEditingController();
-  List<dynamic> shoppingList = [];
+  List<Ingredient> shoppingList = [];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,7 +52,7 @@ class _ShoppingListState extends State<ShoppingList> {
             if (!snapshot.hasData) {
               return const CircularProgressIndicator();
             } else {
-              shoppingList = snapshot.data['list'];
+              shoppingList = deserialize(snapshot.data['list']);
 
               return ListView.builder(
                   itemCount: shoppingList.length,
@@ -62,7 +67,7 @@ class _ShoppingListState extends State<ShoppingList> {
                             ),
                             onPressed: () => removeItemFromShoppingList(index),
                           ),
-                          title: Text(shoppingList[index])),
+                          title: Text(shoppingList[index].name)),
                     );
                   });
             }
@@ -70,7 +75,19 @@ class _ShoppingListState extends State<ShoppingList> {
     );
   }
 
-  Future<void> addItemToShoppingList(String newItem) async {
+  List<Ingredient> deserialize(List<dynamic> data) {
+    List<Ingredient> ingredients = [];
+    debugPrint(data.toString());
+    for (int index = 0; index < data.length; index++) {
+      ingredients.add(Ingredient(
+          name: data[index]['name'],
+          quantity: data[index]['quantity'].toDouble(),
+          quantityType: data[index]['quantityType']));
+    }
+    return ingredients;
+  }
+
+  Future<void> addItemToShoppingList(Ingredient newItem) async {
     final collectionReference =
         FirebaseFirestore.instance.collection('weekly_plan');
     final documentReference = collectionReference.doc('shopping_list');
@@ -81,11 +98,11 @@ class _ShoppingListState extends State<ShoppingList> {
       if (data != null &&
           data.containsKey('list') &&
           data.containsKey('extras')) {
-        final list = data['list'] as List<dynamic>;
-        final extras = data['extras'] as List<dynamic>;
+        List<Ingredient> list = deserialize(data['list']);
+        List<Ingredient> extras = deserialize(data['extras']);
         list.add(newItem);
         extras.add(newItem);
-        await documentReference.update({'list': list, 'extras': extras});
+        shoppingListModel.updateShoppingList(list, extras);
         debugPrint('Item added successfully.');
       } else {
         debugPrint('No list found in the document.');
@@ -103,24 +120,21 @@ class _ShoppingListState extends State<ShoppingList> {
     final documentSnapshot = await documentReference.get();
     if (documentSnapshot.exists) {
       final data = documentSnapshot.data();
+      debugPrint(data.toString());
       if (data != null && data.containsKey('list')) {
-        final list = data['list'] as List<dynamic>;
-        final extras = data['extras'] as List<dynamic>;
+        List<Ingredient> list = deserialize(data['list']);
+        List<Ingredient> extras = deserialize(data['extras']);
         if (index >= 0 && index < list.length) {
           if (extras.contains(list[index])) {
             extras.remove(list[index]);
           }
           list.removeAt(index);
-          await documentReference.update({'list': list, 'extras': extras});
+          shoppingListModel.updateShoppingList(list, extras);
           debugPrint('Item removed successfully.');
         } else {
           debugPrint('Invalid index. Cannot remove item.');
         }
-      } else {
-        debugPrint('No list found in the document.');
       }
-    } else {
-      debugPrint('Document does not exist.');
     }
   }
 
@@ -144,7 +158,10 @@ class _ShoppingListState extends State<ShoppingList> {
             TextButton(
               child: const Text('Add'),
               onPressed: () {
-                addItemToShoppingList(_textEditingController.text);
+                addItemToShoppingList(Ingredient(
+                    name: _textEditingController.text,
+                    quantity: 0.0,
+                    quantityType: " "));
                 _textEditingController.clear();
                 Navigator.of(context).pop();
               },

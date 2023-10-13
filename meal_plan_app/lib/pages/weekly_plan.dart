@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:meal_plan_app/models/meal.dart';
+import 'package:meal_plan_app/pages/shopping_list.dart';
 import 'package:meal_plan_app/widgets/day_meal_display_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:meal_plan_app/widgets/weekly_plan_display.dart';
 import 'package:meal_plan_app/widgets/weekly_plan_selecter.dart';
 import 'package:provider/provider.dart';
 
+import '../models/shopping_list_model.dart';
 import '../providers/weekly_meal_plan_provider.dart';
 
 class WeeklyMealPlan extends StatefulWidget {
@@ -67,7 +70,7 @@ class _WeeklyMealPlanState extends State<WeeklyMealPlan> {
     final mealsCollectionReference =
         FirebaseFirestore.instance.collection('Meals');
 
-    var ingredientsForMealsInMealPlan = [];
+    List<Ingredient> ingredientsForMealsInMealPlan = [];
     for (int dayIndex = 0; dayIndex < 7; dayIndex++) {
       for (int mealIndex = 0; mealIndex < 3; mealIndex++) {
         for (int dishIndex = 0;
@@ -82,7 +85,10 @@ class _WeeklyMealPlanState extends State<WeeklyMealPlan> {
             if (mealData != null && mealData.containsKey('ingredients')) {
               var ingredients = mealData['ingredients'];
               for (int index = 0; index < ingredients.length; index++) {
-                ingredientsForMealsInMealPlan.add(ingredients[index]['name']);
+                ingredientsForMealsInMealPlan.add(Ingredient(
+                    name: ingredients[index]['name'],
+                    quantity: ingredients[index]['quantity'],
+                    quantityType: ingredients[index]['quantityType']));
               }
             } else {
               debugPrint('No ingredients found in the document.');
@@ -95,21 +101,32 @@ class _WeeklyMealPlanState extends State<WeeklyMealPlan> {
   }
 
   Future<void> updateShoppingList() async {
+    final ShoppingListModel shoppingListModel =
+        ShoppingListModel(extras: [], shoppingList: []);
     final shoppingListCollectionReference =
         FirebaseFirestore.instance.collection('weekly_plan');
     final shoppingListDocumentReference =
         shoppingListCollectionReference.doc('shopping_list');
 
-    var mealPlanIngredients = await gatherIngredientsForMealPlan();
+    List<Ingredient> mealPlanIngredients = await gatherIngredientsForMealPlan();
 
     final documentSnapshot = await shoppingListDocumentReference.get();
     if (documentSnapshot.exists) {
       final data = documentSnapshot.data();
       if (data != null && data.containsKey('list')) {
-        final extras = data['extras'] as List<dynamic>;
-        final shoppingList = generateShoppingList(mealPlanIngredients, extras);
-        await shoppingListDocumentReference
-            .set({'list': shoppingList, 'extras': extras});
+        final extrasRawData = data['extras'] as List<dynamic>;
+        List<Ingredient> extras = [];
+        for (int index = 0; index < extrasRawData.length; index++) {
+          // When adding an extra I will need to add a form so that they select a quantity and a type
+          extras.add(Ingredient(
+              name: extrasRawData[index].toString(),
+              quantity: 0.0,
+              quantityType: 'g'));
+        }
+        List<Ingredient> shoppingList =
+            generateShoppingList(mealPlanIngredients, extras);
+        debugPrint(shoppingList[0].name);
+        shoppingListModel.updateShoppingList(shoppingList, extras);
         debugPrint('Items added successfully.');
       } else {
         debugPrint('No list found in the document.');
@@ -119,9 +136,9 @@ class _WeeklyMealPlanState extends State<WeeklyMealPlan> {
     }
   }
 
-  List<dynamic> generateShoppingList(
-      List<dynamic> itemsToAdd, List<dynamic> extras) {
-    Set<dynamic> uniqueItems = Set<dynamic>.from(itemsToAdd);
+  List<Ingredient> generateShoppingList(
+      List<Ingredient> itemsToAdd, List<Ingredient> extras) {
+    Set<Ingredient> uniqueItems = Set<Ingredient>.from(itemsToAdd);
 
     for (int index = 0; index < extras.length; index++) {
       if (!uniqueItems.contains(extras[index])) {
@@ -129,7 +146,7 @@ class _WeeklyMealPlanState extends State<WeeklyMealPlan> {
       }
     }
 
-    List<dynamic> resultList = uniqueItems.toList();
+    List<Ingredient> resultList = uniqueItems.toList();
     return resultList;
   }
 }

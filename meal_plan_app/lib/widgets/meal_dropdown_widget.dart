@@ -20,7 +20,6 @@ class _MealDropDownState extends State<MealDropDown> {
   @override
   Widget build(BuildContext context) {
     var selectedMeals = context.watch<MealSelectionsProvider>().weeklyMeals;
-    debugPrint("Selected meals: $selectedMeals");
     return Consumer<MealSelectionsProvider>(
       builder: (context, mealSelectionsProvider, _) {
         return SingleChildScrollView(

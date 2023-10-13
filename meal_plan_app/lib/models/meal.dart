@@ -58,4 +58,8 @@ class Ingredient {
     required this.quantity,
     required this.quantityType,
   });
+
+  Map<String, dynamic> toMap() {
+    return {'name': name, 'quantity': quantity, 'quantityType': quantityType};
+  }
 }
