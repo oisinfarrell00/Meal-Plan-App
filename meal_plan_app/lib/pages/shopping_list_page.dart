@@ -12,9 +12,13 @@ class ShoppingList extends StatefulWidget {
 }
 
 class _ShoppingListState extends State<ShoppingList> {
-  final ShoppingListModel shoppingListModel =
-      ShoppingListModel(extras: [], shoppingList: []);
-  final TextEditingController _textEditingController = TextEditingController();
+  final TextEditingController ingredientNameController =
+      TextEditingController();
+  final TextEditingController ingredientTypeController =
+      TextEditingController();
+  final TextEditingController ingredientAmountController =
+      TextEditingController();
+
   List<Ingredient> shoppingList = [];
   @override
   Widget build(BuildContext context) {
@@ -61,12 +65,18 @@ class _ShoppingListState extends State<ShoppingList> {
                       child: ListTile(
                           leading: const Icon(Icons.list),
                           trailing: IconButton(
-                            icon: const Icon(
-                              Icons.delete,
-                              color: Color.fromARGB(255, 235, 94, 84),
-                            ),
-                            onPressed: () => removeItemFromShoppingList(index),
-                          ),
+                              icon: const Icon(
+                                Icons.delete,
+                                color: Color.fromARGB(255, 235, 94, 84),
+                              ),
+                              onPressed: () {
+                                debugPrint(
+                                    "Model contains: ${ShoppingListModel().shoppingList.toString()}");
+                                ShoppingListModel()
+                                    .removeFromShoppingListByIndex(index);
+                                ShoppingListModel()
+                                    .updateShoppingListOnFirebase();
+                              }),
                           title: Text(shoppingList[index].name)),
                     );
                   });
@@ -87,66 +97,30 @@ class _ShoppingListState extends State<ShoppingList> {
     return ingredients;
   }
 
-  Future<void> addItemToShoppingList(Ingredient newItem) async {
-    final collectionReference =
-        FirebaseFirestore.instance.collection('weekly_plan');
-    final documentReference = collectionReference.doc('shopping_list');
-
-    final documentSnapshot = await documentReference.get();
-    if (documentSnapshot.exists) {
-      final data = documentSnapshot.data();
-      if (data != null &&
-          data.containsKey('list') &&
-          data.containsKey('extras')) {
-        List<Ingredient> list = deserialize(data['list']);
-        List<Ingredient> extras = deserialize(data['extras']);
-        list.add(newItem);
-        extras.add(newItem);
-        shoppingListModel.updateShoppingList(list, extras);
-        debugPrint('Item added successfully.');
-      } else {
-        debugPrint('No list found in the document.');
-      }
-    } else {
-      debugPrint('Document does not exist.');
-    }
-  }
-
-  Future<void> removeItemFromShoppingList(int index) async {
-    final collectionReference =
-        FirebaseFirestore.instance.collection('weekly_plan');
-    final documentReference = collectionReference.doc('shopping_list');
-
-    final documentSnapshot = await documentReference.get();
-    if (documentSnapshot.exists) {
-      final data = documentSnapshot.data();
-      debugPrint(data.toString());
-      if (data != null && data.containsKey('list')) {
-        List<Ingredient> list = deserialize(data['list']);
-        List<Ingredient> extras = deserialize(data['extras']);
-        if (index >= 0 && index < list.length) {
-          if (extras.contains(list[index])) {
-            extras.remove(list[index]);
-          }
-          list.removeAt(index);
-          shoppingListModel.updateShoppingList(list, extras);
-          debugPrint('Item removed successfully.');
-        } else {
-          debugPrint('Invalid index. Cannot remove item.');
-        }
-      }
-    }
-  }
-
   void _showAddItemDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Add Item'),
-          content: TextField(
-            controller: _textEditingController,
-            decoration: const InputDecoration(hintText: 'Enter item name'),
+          content: Column(
+            children: [
+              TextField(
+                controller: ingredientNameController,
+                decoration:
+                    const InputDecoration(hintText: 'Enter ingredient name'),
+              ),
+              TextField(
+                controller: ingredientAmountController,
+                decoration:
+                    const InputDecoration(hintText: 'Enter ingredient amount'),
+              ),
+              TextField(
+                controller: ingredientTypeController,
+                decoration:
+                    const InputDecoration(hintText: 'Enter ingredient type'),
+              ),
+            ],
           ),
           actions: <Widget>[
             TextButton(
@@ -158,11 +132,14 @@ class _ShoppingListState extends State<ShoppingList> {
             TextButton(
               child: const Text('Add'),
               onPressed: () {
-                addItemToShoppingList(Ingredient(
-                    name: _textEditingController.text,
+                // Might need to add to extras too ?
+                ShoppingListModel().addToShoppingList(Ingredient(
+                    name: ingredientNameController.text,
                     quantity: 0.0,
                     quantityType: " "));
-                _textEditingController.clear();
+                ingredientNameController.clear();
+                ingredientAmountController.clear();
+                ingredientTypeController.clear();
                 Navigator.of(context).pop();
               },
             ),

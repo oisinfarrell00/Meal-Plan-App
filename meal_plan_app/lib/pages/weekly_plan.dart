@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:meal_plan_app/models/meal.dart';
-import 'package:meal_plan_app/pages/shopping_list.dart';
 import 'package:meal_plan_app/widgets/day_meal_display_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:meal_plan_app/widgets/weekly_plan_display.dart';
@@ -46,7 +45,7 @@ class _WeeklyMealPlanState extends State<WeeklyMealPlan> {
             onPressed: () {
               if (inEditMode) {
                 weeklyMealProvider.uploadWeeklyMealsToFirestore();
-                updateShoppingList();
+                ShoppingListModel().updateShoppingList(context);
               }
               setState(() {
                 inEditMode = !inEditMode;
@@ -62,91 +61,5 @@ class _WeeklyMealPlanState extends State<WeeklyMealPlan> {
               ? const WeeklyMealPlanDisplay()
               : const DailyMealPlanDisplay(),
     );
-  }
-
-  Future<dynamic> gatherIngredientsForMealPlan() async {
-    final provider =
-        Provider.of<MealSelectionsProvider>(context, listen: false);
-    final mealsCollectionReference =
-        FirebaseFirestore.instance.collection('Meals');
-
-    List<Ingredient> ingredientsForMealsInMealPlan = [];
-    for (int dayIndex = 0; dayIndex < 7; dayIndex++) {
-      for (int mealIndex = 0; mealIndex < 3; mealIndex++) {
-        for (int dishIndex = 0;
-            dishIndex < provider.weeklyMeals[dayIndex][mealIndex].length;
-            dishIndex++) {
-          var mealDocumentReference = mealsCollectionReference
-              .doc(provider.weeklyMeals[dayIndex][mealIndex][dishIndex]);
-          var mealDocumentSnapshot = await mealDocumentReference.get();
-          if (mealDocumentSnapshot.exists) {
-            var mealData = mealDocumentSnapshot
-                .data(); // this could be good for getting all info about the meals.
-            if (mealData != null && mealData.containsKey('ingredients')) {
-              var ingredients = mealData['ingredients'];
-              for (int index = 0; index < ingredients.length; index++) {
-                ingredientsForMealsInMealPlan.add(Ingredient(
-                    name: ingredients[index]['name'],
-                    quantity: ingredients[index]['quantity'],
-                    quantityType: ingredients[index]['quantityType']));
-              }
-            } else {
-              debugPrint('No ingredients found in the document.');
-            }
-          }
-        }
-      }
-    }
-    return ingredientsForMealsInMealPlan;
-  }
-
-  Future<void> updateShoppingList() async {
-    final ShoppingListModel shoppingListModel =
-        ShoppingListModel(extras: [], shoppingList: []);
-    final shoppingListCollectionReference =
-        FirebaseFirestore.instance.collection('weekly_plan');
-    final shoppingListDocumentReference =
-        shoppingListCollectionReference.doc('shopping_list');
-
-    List<Ingredient> mealPlanIngredients = await gatherIngredientsForMealPlan();
-
-    final documentSnapshot = await shoppingListDocumentReference.get();
-    if (documentSnapshot.exists) {
-      final data = documentSnapshot.data();
-      if (data != null && data.containsKey('list')) {
-        final extrasRawData = data['extras'] as List<dynamic>;
-        List<Ingredient> extras = [];
-        for (int index = 0; index < extrasRawData.length; index++) {
-          // When adding an extra I will need to add a form so that they select a quantity and a type
-          extras.add(Ingredient(
-              name: extrasRawData[index].toString(),
-              quantity: 0.0,
-              quantityType: 'g'));
-        }
-        List<Ingredient> shoppingList =
-            generateShoppingList(mealPlanIngredients, extras);
-        debugPrint(shoppingList[0].name);
-        shoppingListModel.updateShoppingList(shoppingList, extras);
-        debugPrint('Items added successfully.');
-      } else {
-        debugPrint('No list found in the document.');
-      }
-    } else {
-      debugPrint('Document does not exist.');
-    }
-  }
-
-  List<Ingredient> generateShoppingList(
-      List<Ingredient> itemsToAdd, List<Ingredient> extras) {
-    Set<Ingredient> uniqueItems = Set<Ingredient>.from(itemsToAdd);
-
-    for (int index = 0; index < extras.length; index++) {
-      if (!uniqueItems.contains(extras[index])) {
-        uniqueItems.add(extras[index]);
-      }
-    }
-
-    List<Ingredient> resultList = uniqueItems.toList();
-    return resultList;
   }
 }

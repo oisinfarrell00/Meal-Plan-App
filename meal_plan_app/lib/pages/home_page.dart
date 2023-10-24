@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meal_plan_app/pages/meal_page.dart';
-import 'package:meal_plan_app/pages/shopping_list.dart';
+import 'package:meal_plan_app/pages/shopping_list_page.dart';
 import 'package:meal_plan_app/pages/weekly_plan.dart';
 
 class HomePage extends StatefulWidget {
